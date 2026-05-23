@@ -103,6 +103,8 @@ body { font-family:'Poppins',sans-serif; color:var(--text-dark); line-height:1.6
 .features-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:30px; text-align:center; }
 .feature i { font-size:40px; color:var(--accent); margin-bottom:15px; }
 .feature h3 { font-size:1.1rem; margin-bottom:10px; }
+/* Small rupee symbol for Best Price feature */
+.rupee-symbol-small { font-size:40px; font-weight:bold; color:var(--accent); margin-bottom:15px; line-height:1; }
 .footer { background:var(--primary-dark); color:white; padding:50px 0 20px; }
 .footer-content { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:40px; margin-bottom:30px; }
 .footer-brand h3 { font-size:1.3rem; margin-bottom:10px; }
@@ -135,6 +137,5 @@ body { font-family:'Poppins',sans-serif; color:var(--text-dark); line-height:1.6
     .booking-wrapper { grid-template-columns:1fr; }
     .form-row { grid-template-columns:1fr; gap:15px; }
     .fleet-card { flex-direction:column; text-align:center; }
-    /* Advantage cards stack vertically on mobile */
     .advantage-grid { grid-template-columns:1fr; gap:20px; }
 }
