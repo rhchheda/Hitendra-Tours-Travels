@@ -7,7 +7,7 @@ let CONFIG = {
 };
 
 // Google Apps Script URL - REPLACE WITH YOUR DEPLOYED URL
-const GAS_URL = "https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec";
+const GAS_URL = "https://script.google.com/macros/s/AKfycbzupS81FcWUplphlki0G-wTtvnhhfaacXk1_qoxRqkRDXHLTYIN81dL88e8DpdalnycTA/exec";
 
 // Initialize when DOM loads
 document.addEventListener('DOMContentLoaded', function() {
