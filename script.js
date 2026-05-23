@@ -5,7 +5,7 @@ let CONFIG = {
     whatsappNumber: "919448301456",
     businessName: "Hitendra Tours & Travels"
 };
-const GAS_URL = "https://script.google.com/macros/s/AKfycbzPsFmeUs8it121G5HkJagKml6_4bnmcHEQ19kmYge1YXYYS_8a4zwvqPEgmQxabAM3Og/exec";
+const GAS_URL = "https://script.google.com/macros/s/AKfycbwFls5uasexKXAPPkRrjJ6xwLML-yS0u5GnsHwr3YxOxItT6fg16JPR6XT7IL3Ui5t6/exec";
 let formStartTime = Date.now();
 
 // ==================== INITIALIZATION ====================
@@ -174,6 +174,12 @@ function validateForm() {
     let email = document.getElementById('email').value;
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { showToast('Invalid email', 'error'); return false; }
     return true;
+	
+	// Passenger limit check
+const passengers = parseInt(document.getElementById('passengers').value);
+if (passengers > 5) {
+    showToast("For more than 5 passengers, please contact us directly on 94483 01456.", "error");
+    return false;
 }
 
 function generateBookingId() {
