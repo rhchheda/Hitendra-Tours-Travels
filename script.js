@@ -248,27 +248,24 @@ function closePostSubmitModal() {
 function createWhatsAppMessage(data) {
     let d = new Date(data.journeyDate);
     let formattedDate = d.toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
-    let msg = `🚐 *NEW BOOKING REQUEST - ${data.bookingId}* 🚐\n\n*Customer:* ${data.fullName}\n📞 ${data.phone}\n✉️ ${data.email}\n\n*Trip Type:* ${data.tripType === 'oneway' ? 'One Way' : (data.tripType === 'roundtrip' ? 'Round Trip' : 'Multi‑Stop')}\n*Service:* ${data.serviceType}\n*Pickup:* ${data.pickup}\n`;
-    if (data.stops && data.stops.length) { msg += `*Intermediate Stops:*\n`; data.stops.forEach((s, idx) => { msg += `   ${idx + 1}. ${s.location} (halt ${s.halt} min)\n`; }); }
-    msg += `*Final Drop:* ${data.drop}\n`;
+    let msg = `*NEW BOOKING REQUEST - ${data.bookingId}*\n\n`;
+    msg += `Customer: ${data.fullName}\nPhone: ${data.phone}\nEmail: ${data.email}\n\n`;
+    msg += `Trip: ${data.tripType === 'oneway' ? 'One Way' : (data.tripType === 'roundtrip' ? 'Round Trip' : 'Multi-Stop')}\n`;
+    msg += `Service: ${data.serviceType}\nPickup: ${data.pickup}\n`;
+    if (data.stops && data.stops.length) {
+        msg += `Stops:\n`;
+        data.stops.forEach((s, idx) => { msg += `  ${idx+1}. ${s.location} (halt ${s.halt} min)\n`; });
+    }
+    msg += `Drop: ${data.drop}\n`;
     if (data.tripType === 'roundtrip') {
         let retDate = new Date(data.returnDate).toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
-        msg += `*Return Date:* ${retDate}\n*Return Pickup Time:* ${data.returnTime}\n*Return Drop:* ${data.returnDrop || 'Same as original pickup'}\n`;
+        msg += `Return: ${retDate} at ${data.returnTime}\nReturn Drop: ${data.returnDrop || 'Same as pickup'}\n`;
     }
-    if (data.landmark) msg += `*Landmark:* ${data.landmark}\n`;
-    msg += `*Date:* ${formattedDate}\n*Time:* ${data.pickupTime}\n*Passengers:* ${data.passengers}\n*Luggage:* ${data.luggage}\n\n*Service Highlights:*\n✅ Free flight tracking\n✅ Professional chauffeur\n✅ Sanitized EECO Van\n✅ Real-time WhatsApp updates\n\n_Please share fare quote and confirm availability._`;
+    if (data.landmark) msg += `Landmark: ${data.landmark}\n`;
+    msg += `Date: ${formattedDate}\nTime: ${data.pickupTime}\nPassengers: ${data.passengers}\nLuggage: ${data.luggage}\n\n`;
+    msg += `Service Highlights: Free flight tracking, Professional chauffeur, Sanitized EECO Van\n\n`;
+    msg += `To confirm, please reply with "OK".`;
     return msg;
-}
-
-async function sendWhatsAppFromModal() {
-    let data = window.currentBookingData;
-    if (!data) return;
-    let msg = createWhatsAppMessage(data);
-    let url = `https://wa.me/${CONFIG.whatsappNumber}?text=${encodeURIComponent(msg)}`;
-    closePostSubmitModal();
-    showToast('Redirecting to WhatsApp...', 'success');
-    setTimeout(() => window.open(url, '_blank'), 500);
-    if (document.getElementById('emailCopy').checked) sendEmailCopy(data);
 }
 
 async function sendEmailCopy(data) {
