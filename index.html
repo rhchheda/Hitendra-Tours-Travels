@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>Hitendra Tours & Travels | EECO Van Service</title>
+    <title>Hitendra Tours & Travels | Premium EECO Van Service</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -21,7 +21,7 @@
     <div class="container">
         <div class="nav-brand">
             <h1>Hitendra Tours & Travels</h1>
-            <span class="tagline">EECO Van Service</span>
+            <span class="tagline">EECO Van Service | Since 2015</span>
         </div>
         <div class="nav-contact">
             <a href="tel:+919448301456" class="nav-phone"><i class="fas fa-phone"></i> 94483 01456</a>
@@ -48,7 +48,36 @@
     </div>
 </section>
 
-<!-- Services Section -->
+<!-- The Hitendra Advantage Section (new) -->
+<section class="advantage">
+    <div class="container">
+        <h2 class="section-title">The Hitendra Advantage</h2>
+        <div class="advantage-grid">
+            <div class="advantage-card">
+                <i class="fas fa-car-side"></i>
+                <h3>Spotless EECO Vans</h3>
+                <p>Sanitized, well-maintained vehicles with ample luggage space.</p>
+            </div>
+            <div class="advantage-card">
+                <i class="fas fa-rupee-sign"></i>
+                <h3>Upfront Honest Pricing</h3>
+                <p>No hidden charges. Final bill as quoted.</p>
+            </div>
+            <div class="advantage-card">
+                <i class="fas fa-user-tie"></i>
+                <h3>Professional Chauffeurs</h3>
+                <p>Courteous, experienced drivers with local route expertise.</p>
+            </div>
+            <div class="advantage-card">
+                <i class="fas fa-globe"></i>
+                <h3>Local & Outstation Expertise</h3>
+                <p>Your trusted partner for city and outstation travel.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Services Section (expanded) -->
 <section class="services">
     <div class="container">
         <h2 class="section-title">Our Services</h2>
@@ -68,6 +97,40 @@
                 <h3>Local & Outstation</h3>
                 <p>City travel and outstation trips available.</p>
             </div>
+            <div class="service-card">
+                <div class="service-icon"><i class="fas fa-building"></i></div>
+                <h3>Corporate Travel</h3>
+                <p>Daily staff commutes, client pickups, GST invoices.</p>
+            </div>
+            <div class="service-card">
+                <div class="service-icon"><i class="fas fa-ring"></i></div>
+                <h3>Wedding & Event Transfers</h3>
+                <p>Coordinated guest transportation for any occasion.</p>
+            </div>
+            <div class="service-card">
+                <div class="service-icon"><i class="fas fa-umbrella-beach"></i></div>
+                <h3>Group Tour Packages</h3>
+                <p>Customized itineraries with dedicated driver.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Fleet Showcase Section (new) -->
+<section class="fleet">
+    <div class="container">
+        <h2 class="section-title">Our Fleet</h2>
+        <div class="fleet-card">
+            <div class="fleet-image">
+                <i class="fas fa-shuttle-van"></i>
+            </div>
+            <div class="fleet-details">
+                <h3>EECO Van</h3>
+                <p><strong>Capacity:</strong> Spacious seating for 6-8 passengers + luggage</p>
+                <p><strong>Features:</strong> A/C, ample legroom, charging points, sanitized</p>
+                <p><strong>Starting Price:</strong> Local ₹14/km | Outstation ₹12/km</p>
+                <div class="fleet-badge">Perfect for families & groups</div>
+            </div>
         </div>
     </div>
 </section>
@@ -85,6 +148,7 @@
                         <li><i class="fas fa-check-circle"></i> Well-Maintained EECO Vans</li>
                         <li><i class="fas fa-check-circle"></i> On-Time Guarantee</li>
                         <li><i class="fas fa-check-circle"></i> Best Local Rates</li>
+                        <li><i class="fas fa-check-circle"></i> Free Flight Tracking</li>
                     </ul>
                     <div class="ceo-info">
                         <img src="https://ui-avatars.com/api/?background=1e3c5c&color=fff&name=Hitendra+Dand" alt="CEO" class="ceo-avatar">
@@ -125,6 +189,9 @@
                             <option value="Station Travel">Station Travel</option>
                             <option value="Local Travel">Local Travel</option>
                             <option value="Outstation Travel">Outstation Travel</option>
+                            <option value="Corporate Travel">Corporate Travel</option>
+                            <option value="Wedding/Event Transfer">Wedding/Event Transfer</option>
+                            <option value="Group Tour Package">Group Tour Package</option>
                         </select>
                     </div>
                     
@@ -163,7 +230,9 @@
                                 <option value="3">3 Passengers</option>
                                 <option value="4">4 Passengers</option>
                                 <option value="5">5 Passengers</option>
-                                <option value="6">6+ Passengers (Contact us)</option>
+                                <option value="6">6 Passengers</option>
+                                <option value="7">7 Passengers</option>
+                                <option value="8">8 Passengers</option>
                             </select>
                         </div>
                         <div class="form-group">
@@ -184,6 +253,8 @@
                         </label>
                     </div>
                     
+                    <div id="availabilityStatus" style="display: none; text-align: center; padding: 10px; margin: 10px 0; border-radius: 8px;"></div>
+                    
                     <button type="submit" class="submit-btn" id="submitBtn">
                         <span class="btn-text">Request Booking via WhatsApp</span>
                         <i class="fab fa-whatsapp"></i>
@@ -193,6 +264,62 @@
                         <i class="fas fa-shield-alt"></i> Your details are secure. We'll respond within 10 minutes on WhatsApp.
                     </p>
                 </form>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Testimonials Section (new) -->
+<section class="testimonials">
+    <div class="container">
+        <h2 class="section-title">Loved by Travelers</h2>
+        <div class="testimonials-grid">
+            <div class="testimonial-card">
+                <i class="fas fa-quote-left"></i>
+                <p>"The van was spotless and the driver arrived 15 minutes early. Made our airport transfer so peaceful!"</p>
+                <h4>- Priya Mehta</h4>
+                <div class="rating">★★★★★</div>
+            </div>
+            <div class="testimonial-card">
+                <i class="fas fa-quote-left"></i>
+                <p>"We booked for a family wedding. Mr. Hitendra was very professional and coordinated all guest pickups smoothly."</p>
+                <h4>- Rajesh Sharma</h4>
+                <div class="rating">★★★★★</div>
+            </div>
+            <div class="testimonial-card">
+                <i class="fas fa-quote-left"></i>
+                <p>"Best local van service in Mumbai. Punctual, polite driver, and fair pricing. Highly recommended."</p>
+                <h4>- Anita Desai</h4>
+                <div class="rating">★★★★☆</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- FAQ Section (new) -->
+<section class="faq">
+    <div class="container">
+        <h2 class="section-title">Frequently Asked Questions</h2>
+        <div class="faq-grid">
+            <div class="faq-item">
+                <h3><i class="fas fa-question-circle"></i> What is included in the fare?</h3>
+                <p>Our quoted fare includes driver allowance and fuel. Toll taxes, parking fees, and state entry taxes (for outstation trips) are extra and payable as per actual receipts.</p>
+            </div>
+            <div class="faq-item">
+                <h3><i class="fas fa-credit-card"></i> What payment modes do you accept?</h3>
+                <p>We accept all major payment modes: Cash, UPI (Google Pay, PhonePe, Paytm), Credit/Debit Cards, and Net Banking. You can also pay partially online and the rest to the driver.</p>
+            </div>
+            <div class="faq-item">
+                <h3><i class="fas fa-plane"></i> Do you track flight delays?</h3>
+                <p>Yes! Our driver monitors your flight status and will be there shortly after you land, even if it's delayed. Free of charge.</p>
+            </div>
+            <div class="faq-item">
+                <h3><i class="fas fa-times-circle"></i> What is your cancellation policy?</h3>
+                <p>Cancel your ride for free up to 2 hours before the scheduled pickup time. Late cancellations may incur a nominal fee.</p>
+            </div>
+            <div class="faq-item">
+                <h3><i class="fab fa-whatsapp"></i> Will I get live updates?</h3>
+                <p>Yes. Receive real-time booking status, driver details, and vehicle location updates directly on WhatsApp.</p>
             </div>
         </div>
     </div>
