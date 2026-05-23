@@ -37,7 +37,6 @@
         .modal-body { padding:20px; }
         @media (max-width: 768px) { th, td { font-size: 12px; padding: 8px; } }
     </style>
-    <script src="https://cdn.jsdelivr.net/npm/crypto-js@4.1.1/crypto-js.min.js"></script>
 </head>
 <body>
 <div class="container">
@@ -97,33 +96,23 @@
 <script>
     // ========== UPDATE THIS URL ==========
     const GAS_URL = "https://script.google.com/macros/s/AKfycbwFls5uasexKXAPPkRrjJ6xwLML-yS0u5GnsHwr3YxOxItT6fg16JPR6XT7IL3Ui5t6/exec";
-    // ====================================
     let authToken = null;
 
-    // ========== LOGIN FUNCTION (with error handling) ==========
     async function login() {
         const pwd = document.getElementById('adminPassword').value;
         const errorDiv = document.getElementById('loginError');
         const loginBtn = document.querySelector('#loginScreen button');
-        
         errorDiv.innerText = '';
         if (!pwd.trim()) {
-            errorDiv.innerText = '❌ Please enter the admin password.';
+            errorDiv.innerText = 'Please enter the admin password.';
             return;
         }
-        
         const originalText = loginBtn.innerText;
         loginBtn.innerText = 'Logging in...';
         loginBtn.disabled = true;
-        
         try {
-            const res = await fetch(`${GAS_URL}?action=adminLogin&password=${encodeURIComponent(pwd)}`, {
-                method: 'GET',
-                cache: 'no-store'
-            });
-            if (!res.ok) {
-                throw new Error(`HTTP ${res.status}: ${res.statusText}`);
-            }
+            const res = await fetch(`${GAS_URL}?action=adminLogin&password=${encodeURIComponent(pwd)}`);
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
             const data = await res.json();
             if (data.success) {
                 authToken = data.token;
@@ -131,24 +120,24 @@
                 document.getElementById('dashboard').style.display = 'block';
                 loadBookings();
             } else {
-                errorDiv.innerText = '❌ ' + (data.error || 'Invalid password. Please try again.');
+                errorDiv.innerText = data.error || 'Invalid password.';
             }
         } catch (err) {
-            console.error('Login error:', err);
-            errorDiv.innerText = '❌ Network error. Please check:\n- Your internet connection\n- The GAS URL is correct\n- The script is deployed as "Anyone" can access';
+            console.error(err);
+            errorDiv.innerText = 'Network error. Check GAS URL and deployment.';
         } finally {
             loginBtn.innerText = originalText;
             loginBtn.disabled = false;
         }
     }
 
-    // ========== OTHER FUNCTIONS (loadBookings, renderTable, etc.) ==========
     async function loadBookings() {
         if (!authToken) return;
         document.getElementById('tableLoader').style.display = 'block';
         document.getElementById('bookingsTable').style.display = 'none';
         try {
-            const res = await fetch(`${GAS_URL}?action=getAllBookings&token=${authToken}`);
+            const res = await fetch(`${GAS_URL}?action=getAllBookings&token=${encodeURIComponent(authToken)}`);
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
             const data = await res.json();
             if (data.success) {
                 window.allBookings = data.bookings;
@@ -157,20 +146,20 @@
                 document.getElementById('tableLoader').style.display = 'none';
                 document.getElementById('bookingsTable').style.display = 'table';
             } else {
-                alert("Session expired. Please login again.");
+                alert(data.error || 'Session expired. Please login again.');
                 logout();
             }
         } catch (err) {
-            alert("Failed to load bookings. Check your connection.");
-            logout();
+            console.error('Load bookings error:', err);
+            document.getElementById('tableLoader').innerHTML = 'Failed to load bookings. Check connection and GAS URL.';
         }
     }
 
     function updateStats(bookings) {
-        let pending = bookings.filter(b => b.Status === 'Pending').length;
-        let quoted = bookings.filter(b => b.Status === 'Quoted').length;
-        let confirmed = bookings.filter(b => b.Status === 'Confirmed').length;
-        let completed = bookings.filter(b => b.Status === 'Completed').length;
+        const pending = bookings.filter(b => b.Status === 'Pending').length;
+        const quoted = bookings.filter(b => b.Status === 'Quoted').length;
+        const confirmed = bookings.filter(b => b.Status === 'Confirmed').length;
+        const completed = bookings.filter(b => b.Status === 'Completed').length;
         document.getElementById('stats').innerHTML = `
             <div class="stat-card"><h3>${pending}</h3><p>Pending</p></div>
             <div class="stat-card"><h3>${quoted}</h3><p>Quoted</p></div>
@@ -196,19 +185,23 @@
             row.insertCell(9).innerText = b['Pickup Time'];
             const statusCell = row.insertCell(10);
             const select = document.createElement('select'); select.className = 'status-select';
-            ['Pending', 'Quoted', 'Confirmed', 'Completed', 'Cancelled'].forEach(s => {
-                let opt = document.createElement('option'); opt.value = s; opt.text = s;
+            ['Pending','Quoted','Confirmed','Completed','Cancelled'].forEach(s => {
+                const opt = document.createElement('option');
+                opt.value = s; opt.text = s;
                 if (s === b['Status']) opt.selected = true;
                 select.appendChild(opt);
             });
             statusCell.appendChild(select);
             const fareCell = row.insertCell(11);
-            const fareInput = document.createElement('input'); fareInput.type = 'number'; fareInput.value = b['Fare (₹)'] || ''; fareInput.placeholder = 'Fare'; fareInput.style.width = '80px'; fareInput.className = 'fare-input';
+            const fareInput = document.createElement('input');
+            fareInput.type = 'number'; fareInput.value = b['Fare (₹)'] || ''; fareInput.placeholder = 'Fare';
+            fareInput.style.width = '80px'; fareInput.className = 'fare-input';
             fareCell.appendChild(fareInput);
             const paymentCell = row.insertCell(12);
             const paySelect = document.createElement('select'); paySelect.className = 'payment-select';
-            ['Pending', 'Requested', 'Paid (Cash)', 'Paid (UPI)', 'Paid (NEFT)', 'Receipt Sent'].forEach(s => {
-                let opt = document.createElement('option'); opt.value = s; opt.text = s;
+            ['Pending','Requested','Paid (Cash)','Paid (UPI)','Paid (NEFT)','Receipt Sent'].forEach(s => {
+                const opt = document.createElement('option');
+                opt.value = s; opt.text = s;
                 if (s === (b['Payment Status'] || 'Pending')) opt.selected = true;
                 paySelect.appendChild(opt);
             });
@@ -227,11 +220,11 @@
     }
 
     function filterTable() {
-        let search = document.getElementById('searchInput').value.toLowerCase();
-        let status = document.getElementById('statusFilter').value;
-        let filtered = window.allBookings.filter(b => {
-            let matchSearch = b['Customer Name'].toLowerCase().includes(search) || b['Phone'].includes(search) || b['Booking ID'].toLowerCase().includes(search);
-            let matchStatus = status === '' || b['Status'] === status;
+        const search = document.getElementById('searchInput').value.toLowerCase();
+        const status = document.getElementById('statusFilter').value;
+        const filtered = window.allBookings.filter(b => {
+            const matchSearch = b['Customer Name'].toLowerCase().includes(search) || b['Phone'].includes(search) || b['Booking ID'].toLowerCase().includes(search);
+            const matchStatus = status === '' || b['Status'] === status;
             return matchSearch && matchStatus;
         });
         renderTable(filtered);
@@ -241,24 +234,25 @@
         if (!authToken) return;
         try {
             const res = await fetch(`${GAS_URL}?action=updateBooking&token=${authToken}`, {
-                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ bookingId, status: newStatus, fare: fare ? parseInt(fare) : null, paymentStatus })
             });
             const data = await res.json();
             if (data.success) { alert('Booking updated!'); loadBookings(); }
             else alert('Error: ' + data.error);
-        } catch (err) { alert('Network error'); }
+        } catch(err) { alert('Network error'); }
     }
 
     function requestPayment(bookingId, phone, name, fare) {
-        let fareText = fare ? `₹${fare}` : 'to be advised';
-        let message = `Dear ${name},\n\nYour trip (ID: ${bookingId}) total fare is ${fareText}.\n\n💰 Payment Options:\n• UPI: hitendratours@okhdfcbank (PhonePe/GPay/Paytm)\n• Bank Transfer (NEFT/IMPS):\n  Bank: HDFC Bank\n  A/C Name: Hitendra Tours & Travels\n  A/C No: 123456789012\n  IFSC: HDFC0001234\n• Cash: Pay directly to driver at end of trip\n\nAfter payment, please reply with screenshot (for digital payments) or inform driver (for cash).\n\nThank you,\nHitendra Tours`;
-        let url = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
+        const fareText = fare ? `₹${fare}` : 'to be advised';
+        const message = `Dear ${name},\n\nYour trip (ID: ${bookingId}) total fare is ${fareText}.\n\n💰 Payment Options:\n• UPI: hitendratours@okhdfcbank\n• Bank Transfer: HDFC A/C 123456789012, IFSC HDFC0001234\n• Cash: Pay directly to driver.\n\nAfter payment, reply with screenshot (for digital).\n\nThank you,\nHitendra Tours`;
+        const url = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
         window.open(url, '_blank');
     }
 
     function sendWhatsAppToCustomer(name, phone, bookingId, fare) {
-        let msg = `Hi ${name}, your booking ${bookingId} has been updated. Fare: ₹${fare || 'to be advised'}. Please reply to confirm.`;
+        const msg = `Hi ${name}, your booking ${bookingId} has been updated. Fare: ₹${fare || 'to be advised'}. Please reply to confirm.`;
         window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, '_blank');
     }
 
@@ -272,16 +266,22 @@
         if (newPwd !== confirm) { document.getElementById('pwdMsg').innerText = 'New passwords do not match'; return; }
         try {
             const res = await fetch(`${GAS_URL}?action=changePassword&token=${authToken}`, {
-                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ currentPassword: current, newPassword: newPwd })
             });
             const data = await res.json();
-            if (data.success) { alert('Password changed successfully! Please login again.'); logout(); }
-            else { document.getElementById('pwdMsg').innerText = data.error || 'Failed to change password'; }
-        } catch (err) { document.getElementById('pwdMsg').innerText = 'Network error'; }
+            if (data.success) { alert('Password changed! Please login again.'); logout(); }
+            else { document.getElementById('pwdMsg').innerText = data.error || 'Failed'; }
+        } catch(err) { document.getElementById('pwdMsg').innerText = 'Network error'; }
     }
 
-    function logout() { authToken = null; document.getElementById('dashboard').style.display = 'none'; document.getElementById('loginScreen').style.display = 'block'; document.getElementById('adminPassword').value = ''; }
+    function logout() {
+        authToken = null;
+        document.getElementById('dashboard').style.display = 'none';
+        document.getElementById('loginScreen').style.display = 'block';
+        document.getElementById('adminPassword').value = '';
+    }
 </script>
 </body>
 </html>
