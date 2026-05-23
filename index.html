@@ -89,7 +89,7 @@
                 <div class="info-card">
                     <h3><i class="fas fa-headset"></i> Why Book With Us?</h3>
                     <ul><li><i class="fas fa-check-circle"></i> 24/7 Customer Support</li><li><i class="fas fa-check-circle"></i> Professional Drivers</li><li><i class="fas fa-check-circle"></i> Well-Maintained EECO Vans</li><li><i class="fas fa-check-circle"></i> On-Time Guarantee</li><li><i class="fas fa-check-circle"></i> Best Local Rates</li><li><i class="fas fa-check-circle"></i> Free Flight Tracking</li></ul>
-                    <div class="ceo-info"><img src="https://ui-avatars.com/api/?background=1e3c5c&color=fff&name=Hitendra+Dand" alt="CEO" class="ceo-avatar"><div><strong>Mr. Hitendra L. Dand</strong><small>CEO, Hitendra Tours & Travels</small></div></div>
+                    <div class="ceo-info"><img src="https://ui-avatars.com/api/?background=1e3c5c&color=fff&name=Hitendra+Dand" alt="CEO" class="ceo-avatar"><div><strong>Mr. Hitendra L. Dand</strong><small> CEO, Hitendra Tours & Travels</small></div></div>
                 </div>
             </div>
             <div class="booking-form-container">
@@ -101,11 +101,11 @@
                     <div class="form-row"><div class="form-group"><label><i class="fas fa-phone"></i> Phone Number *</label><input type="tel" id="phone" required placeholder="10-digit mobile number" pattern="[0-9]{10}"></div><div class="form-group"><label><i class="fas fa-envelope"></i> Email *</label><input type="email" id="email" required placeholder="your@email.com"></div></div>
                     <div class="form-group"><label><i class="fas fa-concierge-bell"></i> Service Type *</label><select id="serviceType" required><option value="">Select service</option><option value="Airport Travel">Airport Travel</option><option value="Station Travel">Station Travel</option><option value="Local Travel">Local Travel</option><option value="Outstation Travel">Outstation Travel</option><option value="Corporate Travel">Corporate Travel</option><option value="Wedding/Event Transfer">Wedding/Event Transfer</option><option value="Group Tour Package">Group Tour Package</option></select></div>
                     <div class="form-group"><label><i class="fas fa-route"></i> Trip Type *</label><select id="tripType" required><option value="oneway">One Way</option><option value="roundtrip">Round Trip (Return)</option><option value="multistop">Multi‑Stop / Break Journey</option></select></div>
-                    <div class="form-group"><label><i class="fas fa-map-marker-alt"></i> Pickup Location *</label><input type="text" id="pickup" required placeholder="e.g., Andheri Station, Near Pizza Hut"></div>
-                    <div class="form-group"><label><i class="fas fa-flag-checkered"></i> <span id="dropLabel">Drop Location *</span></label><input type="text" id="drop" required placeholder="e.g., Mumbai Airport T2"></div>
+                    <div class="form-group"><label><i class="fas fa-map-marker-alt"></i> Pickup Location *</label><input type="text" id="pickup" required placeholder="e.g., Hubballi Railway Station, Near Vasant Bhavan"></div>
+                    <div class="form-group"><label><i class="fas fa-flag-checkered"></i> <span id="dropLabel">Drop Location *</span></label><input type="text" id="drop" required placeholder="e.g., Hubballi Airport T2"></div>
                     <div id="roundTripFields" style="display:none;"><div class="form-row"><div class="form-group"><label><i class="fas fa-calendar-alt"></i> Return Date *</label><input type="date" id="returnDate"></div><div class="form-group"><label><i class="fas fa-clock"></i> Return Pickup Time *</label><input type="time" id="returnTime"></div></div><div class="form-group"><label><i class="fas fa-map-marker-alt"></i> Return Drop Location (if different)</label><input type="text" id="returnDrop" placeholder="Leave blank if same as original pickup"></div></div>
                     <div id="multiStopFields" style="display:none;"><div id="stopsContainer"><div class="stop-entry"><div class="form-row"><div class="form-group"><label>Stop 1 Location</label><input type="text" class="stop-location" placeholder="e.g., Powai Lake"></div><div class="form-group"><label>Halt (minutes)</label><input type="number" class="stop-halt" placeholder="30" min="0" step="10"></div></div></div></div><button type="button" id="addStopBtn" class="add-stop-btn"><i class="fas fa-plus"></i> Add another stop (max 3)</button><small class="form-note">You can add up to 3 intermediate stops. The final drop is the main drop location above.</small></div>
-                    <div class="form-group"><label><i class="fas fa-info-circle"></i> Landmark / Special Instructions</label><textarea id="landmark" rows="2" placeholder="Gate number, building name, any specific instructions for the driver..."></textarea></div>
+                    <div class="form-group"><label><i class="fas fa-info-circle"></i> Landmark / Special Instructions</label><textarea id="landmark" rows="2" placeholder="Gate/Terminal number, building name, any specific instructions for the driver..."></textarea></div>
                     <div class="form-row"><div class="form-group"><label><i class="fas fa-calendar"></i> Journey Date *</label><input type="date" id="journeyDate" required></div><div class="form-group"><label><i class="fas fa-clock"></i> Pickup Time *</label><input type="time" id="pickupTime" required></div></div>
                     <div class="form-row"><div class="form-group"><label><i class="fas fa-users"></i> Passengers *</label><select id="passengers" required><option value="1">1 Passenger</option><option value="2">2 Passengers</option><option value="3">3 Passengers</option><option value="4">4 Passengers</option><option value="5">5 Passengers</option><option value="6">6 Passengers</option><option value="7">7 Passengers</option><option value="8">8 Passengers</option></select></div><div class="form-group"><label><i class="fas fa-suitcase"></i> Luggage</label><select id="luggage"><option value="None">No luggage</option><option value="1-2 small bags">1-2 small bags</option><option value="3-4 bags">3-4 bags</option><option value="Heavy luggage">Heavy luggage (inform)</option></select></div></div>
                     
@@ -135,7 +135,19 @@
 </section>
 
 <section class="features">
-    <div class="container"><div class="features-grid"><div class="feature"><i class="fas fa-clock"></i><h3>Punctuality</h3><p>Never late. Always on time for your journey.</p></div><div class="feature"><i class="fas fa-shield-alt"></i><h3>Safe Travel</h3><p>Professional drivers, insured vehicles.</p></div><div class="feature"><i class="fab fa-whatsapp"></i><h3>Instant Booking</h3><p>Confirm your ride in seconds on WhatsApp.</p></div><div class="feature"><i class="fas fa-rupee-sign"></i><h3>Best Price</h3><p>Competitive rates with no hidden charges.</p></div></div></div>
+    <div class="container">
+        <div class="features-grid">
+            <div class="feature"><i class="fas fa-clock"></i><h3>Punctuality</h3><p>Never late. Always on time for your journey.</p></div>
+            <div class="feature"><i class="fas fa-shield-alt"></i><h3>Safe Travel</h3><p>Professional drivers, insured vehicles.</p></div>
+            <div class="feature"><i class="fab fa-whatsapp"></i><h3>Instant Booking</h3><p>Confirm your ride in seconds on WhatsApp.</p></div>
+            <div class="feature">
+                <!-- Rupee symbol as text instead of icon for reliability -->
+                <div class="rupee-symbol-small">₹</div>
+                <h3>Best Price</h3>
+                <p>Competitive rates with no hidden charges.</p>
+            </div>
+        </div>
+    </div>
 </section>
 
 <footer class="footer">
@@ -144,7 +156,7 @@
             <div class="footer-brand"><h3>Hitendra Tours & Travels</h3><p>EECO Van Service | Since 2015</p><p class="commitment">Total Commitment to Service Excellence</p></div>
             <div class="footer-contact"><h4>Contact</h4><p><i class="fas fa-phone"></i> <a href="tel:+919448301456">94483 01456</a></p><p><i class="fab fa-whatsapp"></i> <a href="https://wa.me/919448301456" target="_blank">WhatsApp: 94483 01456</a></p><p><i class="far fa-envelope"></i> hitendratours@gmail.com</p></div>
             <div class="footer-hours"><h4>Service Hours</h4><p id="footerHours">Loading...</p></div>
-            <div class="footer-address"><h4>Address</h4><p><i class="fas fa-map-marker-alt"></i> Hitendra Tours & Travels,<br>Shop No. 5, Sai Plaza,<br>Andheri East, Mumbai – 400069,<br>Maharashtra, India</p></div>
+            <div class="footer-address"><h4>Address</h4><p><i class="fas fa-map-marker-alt"></i> Hitendra Tours & Travels,<br>Plot#138,Manoj Paradise,<br>KDO Residency,B15,2nd Floor,<br>Keshwapur,Hubballi – 580023,<br>Karnataka, India</p></div>
         </div>
         <div class="footer-bottom"><p>&copy; 2026 Hitendra Tours & Travels. All rights reserved.</p></div>
     </div>
