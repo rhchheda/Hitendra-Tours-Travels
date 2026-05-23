@@ -7,7 +7,7 @@ let CONFIG = {
 };
 
 // Google Apps Script URL - REPLACE WITH YOUR DEPLOYED URL
-const GAS_URL = "https://script.google.com/macros/s/AKfycbzupS81FcWUplphlki0G-wTtvnhhfaacXk1_qoxRqkRDXHLTYIN81dL88e8DpdalnycTA/exec";
+const GAS_URL = "https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec";
 
 // Initialize when DOM loads
 document.addEventListener('DOMContentLoaded', function() {
@@ -95,18 +95,83 @@ function setupFormSubmit() {
     }
 }
 
-// Handle form submission
+// Check vehicle availability before submission
+async function checkVehicleAvailability(date, time) {
+    try {
+        const response = await fetch(`${GAS_URL}?action=checkAvailability&date=${date}&time=${time}`);
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.log('Availability check failed, assuming available:', error);
+        return { available: true, availableCount: 2, message: 'Available' };
+    }
+}
+
+// Handle form submission with availability check
 async function handleFormSubmit(e) {
     e.preventDefault();
     
-    // Validate form
     if (!validateForm()) return;
     
-    // Collect form data
     const bookingData = collectFormData();
     
-    // Show summary modal
+    // Show loading
+    showToast('Checking vehicle availability...', 'success');
+    
+    // Check availability
+    const availability = await checkVehicleAvailability(bookingData.journeyDate, bookingData.pickupTime);
+    
+    if (!availability.available) {
+        showNoVehiclesModal(availability.message);
+        return;
+    }
+    
+    bookingData.availableCount = availability.availableCount;
     showBookingSummary(bookingData);
+}
+
+// Show "No Vehicles Available" modal
+function showNoVehiclesModal(message) {
+    let modal = document.getElementById('noVehiclesModal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'noVehiclesModal';
+        modal.className = 'modal-overlay';
+        document.body.appendChild(modal);
+    }
+    
+    modal.innerHTML = `
+        <div class="modal">
+            <div class="modal-header" style="background: #e74c3c;">
+                <h3><i class="fas fa-truck"></i> 🚐 Vehicles Fully Booked</h3>
+                <button class="modal-close" onclick="closeNoVehiclesModal()">&times;</button>
+            </div>
+            <div class="modal-body" style="text-align: center;">
+                <i class="fas fa-clock" style="font-size: 60px; color: #e74c3c; margin-bottom: 20px;"></i>
+                <p style="font-size: 18px; margin-bottom: 15px;">${message}</p>
+                <div style="background: #fff3cd; padding: 15px; border-radius: 8px; margin: 20px 0;">
+                    <strong>💡 Suggestions:</strong><br>
+                    • Try a different time slot<br>
+                    • Choose another date<br>
+                    • Call us directly at <strong>94483 01456</strong>
+                </div>
+                <button onclick="closeNoVehiclesModal()" class="submit-btn" style="background: #1e3c5c; margin-top: 10px;">
+                    Choose Different Time
+                </button>
+            </div>
+        </div>
+    `;
+    
+    setTimeout(() => {
+        modal.classList.add('active');
+    }, 10);
+}
+
+function closeNoVehiclesModal() {
+    const modal = document.getElementById('noVehiclesModal');
+    if (modal) {
+        modal.classList.remove('active');
+    }
 }
 
 // Validate form
@@ -122,14 +187,12 @@ function validateForm() {
         }
     }
     
-    // Validate phone
     const phone = document.getElementById('phone').value;
     if (!/^\d{10}$/.test(phone)) {
         showToast('Please enter a valid 10-digit mobile number', 'error');
         return false;
     }
     
-    // Validate email
     const email = document.getElementById('email').value;
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
         showToast('Please enter a valid email address', 'error');
@@ -174,8 +237,7 @@ function generateBookingId() {
 }
 
 // Show booking summary modal
-function showSummaryModal(bookingData) {
-    // Create modal if doesn't exist
+function showBookingSummary(bookingData) {
     let modal = document.getElementById('summaryModal');
     if (!modal) {
         modal = document.createElement('div');
@@ -184,7 +246,6 @@ function showSummaryModal(bookingData) {
         document.body.appendChild(modal);
     }
     
-    // Format date and time
     const formattedDate = new Date(bookingData.journeyDate).toLocaleDateString('en-IN', {
         day: 'numeric',
         month: 'long',
@@ -223,18 +284,11 @@ function showSummaryModal(bookingData) {
         </div>
     `;
     
-    // Store booking data globally for the modal
     window.currentBookingData = bookingData;
     
-    // Show modal
     setTimeout(() => {
         modal.classList.add('active');
     }, 10);
-}
-
-// Show booking summary (updated function name)
-function showBookingSummary(bookingData) {
-    showSummaryModal(bookingData);
 }
 
 // Send to WhatsApp
@@ -242,33 +296,26 @@ async function sendToWhatsApp(bookingId) {
     const bookingData = window.currentBookingData;
     if (!bookingData) return;
     
-    // Create WhatsApp message
     const message = createWhatsAppMessage(bookingData);
     const encodedMessage = encodeURIComponent(message);
     const whatsappUrl = `https://wa.me/${CONFIG.whatsappNumber}?text=${encodedMessage}`;
     
-    // Save booking to Google Sheets (async - don't wait)
     saveBookingToSheet(bookingData);
     
-    // Send email copy if requested
     const emailCopy = document.getElementById('emailCopy').checked;
     if (emailCopy) {
         sendEmailCopy(bookingData);
     }
     
-    // Close modal
     closeModal();
-    
-    // Show success message
     showToast('Redirecting to WhatsApp...', 'success');
     
-    // Redirect to WhatsApp
     setTimeout(() => {
         window.open(whatsappUrl, '_blank');
     }, 500);
 }
 
-// Create WhatsApp message
+// Enhanced WhatsApp message with service highlights
 function createWhatsAppMessage(data) {
     const dateObj = new Date(data.journeyDate);
     const formattedDate = dateObj.toLocaleDateString('en-IN', {
@@ -292,6 +339,11 @@ function createWhatsAppMessage(data) {
     message += `⏰ Time: ${data.pickupTime}\n`;
     message += `👥 Passengers: ${data.passengers}\n`;
     message += `🧳 Luggage: ${data.luggage}\n\n`;
+    message += `*Service Highlights:*\n`;
+    message += `✅ Free flight tracking\n`;
+    message += `✅ Professional chauffeur\n`;
+    message += `✅ Sanitized EECO Van\n`;
+    message += `✅ Real-time WhatsApp updates\n\n`;
     message += `_Please share fare quote and confirm availability._\n`;
     message += `Reply to this message to connect with customer.`;
     
@@ -301,16 +353,11 @@ function createWhatsAppMessage(data) {
 // Save booking to Google Sheets
 async function saveBookingToSheet(bookingData) {
     try {
-        const response = await fetch(GAS_URL, {
+        await fetch(GAS_URL, {
             method: 'POST',
-            mode: 'no-cors', // Use no-cors for simple deployment
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                action: 'saveBooking',
-                data: bookingData
-            })
+            mode: 'no-cors',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: 'saveBooking', data: bookingData })
         });
         console.log('Booking saved to sheet');
     } catch (error) {
@@ -321,13 +368,10 @@ async function saveBookingToSheet(bookingData) {
 // Send email copy using GAS
 async function sendEmailCopy(bookingData) {
     try {
-        // This will send email via GAS
         await fetch(`${GAS_URL}?action=sendEmailCopy`, {
             method: 'POST',
             mode: 'no-cors',
-            headers: {
-                'Content-Type': 'application/json',
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(bookingData)
         });
         showToast('Confirmation email sent!', 'success');
@@ -336,15 +380,11 @@ async function sendEmailCopy(bookingData) {
     }
 }
 
-// Close modal
 function closeModal() {
     const modal = document.getElementById('summaryModal');
-    if (modal) {
-        modal.classList.remove('active');
-    }
+    if (modal) modal.classList.remove('active');
 }
 
-// Show toast notification
 function showToast(message, type = 'success') {
     let toast = document.getElementById('toast');
     if (!toast) {
@@ -353,22 +393,18 @@ function showToast(message, type = 'success') {
         toast.className = 'toast';
         document.body.appendChild(toast);
     }
-    
     toast.textContent = message;
     toast.className = `toast ${type} show`;
-    
-    setTimeout(() => {
-        toast.classList.remove('show');
-    }, 3000);
+    setTimeout(() => toast.classList.remove('show'), 3000);
 }
 
-// Escape HTML
 function escapeHtml(text) {
     const div = document.createElement('div');
     div.textContent = text;
     return div.innerHTML;
 }
 
-// Make functions global for modal buttons
+// Global functions for modals
 window.closeModal = closeModal;
 window.sendToWhatsApp = sendToWhatsApp;
+window.closeNoVehiclesModal = closeNoVehiclesModal;
