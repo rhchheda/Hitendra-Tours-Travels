@@ -32,7 +32,18 @@ body { font-family:'Poppins',sans-serif; color:var(--text-dark); line-height:1.6
 .status-dot.closed { background:var(--danger); animation:none; }
 .hours-text { font-size:0.8rem; margin-top:5px; opacity:0.8; }
 .advantage { padding:60px 0; background:linear-gradient(135deg,#f8f9fa 0%,#fff 100%); }
-.advantage-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:30px; margin-top:30px; }
+.advantage-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);  /* 4 equal columns */
+    gap: 30px;
+    margin-top: 30px;
+}
+
+@media (max-width: 768px) {
+    .advantage-grid {
+        grid-template-columns: 1fr;  /* stack on mobile */
+    }
+}
 .advantage-card { text-align:center; padding:30px 20px; background:white; border-radius:var(--border-radius); transition:all 0.3s ease; box-shadow:var(--shadow); }
 .advantage-card:hover { transform:translateY(-5px); box-shadow:var(--shadow-hover); }
 .advantage-card i { font-size:48px; color:var(--accent); margin-bottom:15px; }
