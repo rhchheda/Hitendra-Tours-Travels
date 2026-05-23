@@ -248,6 +248,7 @@ body {
 .footer-contact a { color: white; text-decoration: none; }
 .footer-contact a:hover { color: var(--accent); }
 .footer-bottom { text-align: center; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.1); font-size: 0.8rem; }
+.footer-address p {    line-height: 1.5;font-size: 0.85rem;}
 
 /* Toast & Modal */
 .toast { position: fixed; bottom: 30px; right: 30px; background: #333; color: white; padding: 15px 25px; border-radius: 8px; z-index: 1100; opacity: 0; transform: translateX(100%); transition: all 0.3s ease; }
