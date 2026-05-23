@@ -32,19 +32,31 @@
     </div>
 </section>
 
-<div class="advantage-card">
-    <div class="rupee-symbol">₹</div>
-        <svg width="56" height="56" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M8 4H22V7H8V4ZM8 9H22V12H8V9ZM8 14H16.5C20 14 22.5 16 22.5 19C22.5 22 20 24 16.5 24H8V21H16.5C18.5 21 19.5 20 19.5 19C19.5 18 18.5 17 16.5 17H8V14Z" fill="#e67e22"/>
-            <path d="M8 26H13V23H8V26Z" fill="#e67e22"/>
-            <text x="5" y="28" font-size="20" fill="#e67e22" font-weight="bold">₹</text>
-        </svg>
-    </div>
-    <h3>Upfront Honest Pricing</h3>
-    <p>No hidden charges. Final bill as quoted.</p>
-</div>
-<div class="advantage-card"><i class="fas fa-user-tie"></i><h3>Professional Chauffeurs</h3><p>Courteous, experienced drivers with local route expertise.</p></div>
-            <div class="advantage-card"><i class="fas fa-globe"></i><h3>Local & Outstation Expertise</h3><p>Your trusted partner for city and outstation travel.</p></div>
+<!-- The Hitendra Advantage - Horizontally stacked on desktop -->
+<section class="advantage">
+    <div class="container">
+        <h2 class="section-title">The Hitendra Advantage</h2>
+        <div class="advantage-grid">
+            <div class="advantage-card">
+                <div class="rupee-symbol">₹</div>
+                <h3>Upfront Honest Pricing</h3>
+                <p>No hidden charges. Final bill as quoted.</p>
+            </div>
+            <div class="advantage-card">
+                <i class="fas fa-car-side"></i>
+                <h3>Spotless EECO Vans</h3>
+                <p>Sanitized, well-maintained vehicles with ample luggage space.</p>
+            </div>
+            <div class="advantage-card">
+                <i class="fas fa-user-tie"></i>
+                <h3>Professional Chauffeurs</h3>
+                <p>Courteous, experienced drivers with local route expertise.</p>
+            </div>
+            <div class="advantage-card">
+                <i class="fas fa-globe"></i>
+                <h3>Local & Outstation Expertise</h3>
+                <p>Your trusted partner for city and outstation travel.</p>
+            </div>
         </div>
     </div>
 </section>
@@ -66,7 +78,7 @@
 <section class="fleet">
     <div class="container">
         <h2 class="section-title">Our Fleet</h2>
-        <div class="fleet-card"><div class="fleet-image"><i class="fas fa-shuttle-van"></i></div><div class="fleet-details"><h3>EECO Van</h3><p><strong>Capacity:</strong> Spacious seating for 6-8 passengers + luggage</p><p><strong>Features:</strong> A/C, ample legroom, charging points, sanitized</p><p><strong>Starting Price:</strong> Local ₹17/km | Outstation ₹20/km</p><div class="fleet-badge">Perfect for families & groups</div></div></div>
+        <div class="fleet-card"><div class="fleet-image"><i class="fas fa-shuttle-van"></i></div><div class="fleet-details"><h3>EECO Van</h3><p><strong>Capacity:</strong> Spacious seating for 6-8 passengers + luggage</p><p><strong>Features:</strong> A/C, ample legroom, charging points, sanitized</p><p><strong>Starting Price:</strong> Local ₹14/km | Outstation ₹12/km</p><div class="fleet-badge">Perfect for families & groups</div></div></div>
     </div>
 </section>
 
@@ -77,11 +89,11 @@
                 <div class="info-card">
                     <h3><i class="fas fa-headset"></i> Why Book With Us?</h3>
                     <ul><li><i class="fas fa-check-circle"></i> 24/7 Customer Support</li><li><i class="fas fa-check-circle"></i> Professional Drivers</li><li><i class="fas fa-check-circle"></i> Well-Maintained EECO Vans</li><li><i class="fas fa-check-circle"></i> On-Time Guarantee</li><li><i class="fas fa-check-circle"></i> Best Local Rates</li><li><i class="fas fa-check-circle"></i> Free Flight Tracking</li></ul>
-                    <div class="ceo-info"><img src="https://ui-avatars.com/api/?background=1e3c5c&color=fff&name=Hitendra+Dand" alt="CEO" class="ceo-avatar"><div><strong>Mr. Hitendra L. Dand</strong><small> CEO, Hitendra Tours & Travels</small></div></div>
+                    <div class="ceo-info"><img src="https://ui-avatars.com/api/?background=1e3c5c&color=fff&name=Hitendra+Dand" alt="CEO" class="ceo-avatar"><div><strong>Mr. Hitendra L. Dand</strong><small>CEO, Hitendra Tours & Travels</small></div></div>
                 </div>
             </div>
             <div class="booking-form-container">
-                <div class="form-header"><h2>Book Your Ride</h2><p>Fill the details below. We'll get back to you within 25 minutes.</p></div>
+                <div class="form-header"><h2>Book Your Ride</h2><p>Fill the details below. We'll get back to you within 20 minutes.</p></div>
                 <form id="bookingForm" class="booking-form">
                     <!-- Honeypot -->
                     <div style="display:none;"><label for="website">Website</label><input type="text" id="website" name="website" value=""></div>
@@ -89,16 +101,25 @@
                     <div class="form-row"><div class="form-group"><label><i class="fas fa-phone"></i> Phone Number *</label><input type="tel" id="phone" required placeholder="10-digit mobile number" pattern="[0-9]{10}"></div><div class="form-group"><label><i class="fas fa-envelope"></i> Email *</label><input type="email" id="email" required placeholder="your@email.com"></div></div>
                     <div class="form-group"><label><i class="fas fa-concierge-bell"></i> Service Type *</label><select id="serviceType" required><option value="">Select service</option><option value="Airport Travel">Airport Travel</option><option value="Station Travel">Station Travel</option><option value="Local Travel">Local Travel</option><option value="Outstation Travel">Outstation Travel</option><option value="Corporate Travel">Corporate Travel</option><option value="Wedding/Event Transfer">Wedding/Event Transfer</option><option value="Group Tour Package">Group Tour Package</option></select></div>
                     <div class="form-group"><label><i class="fas fa-route"></i> Trip Type *</label><select id="tripType" required><option value="oneway">One Way</option><option value="roundtrip">Round Trip (Return)</option><option value="multistop">Multi‑Stop / Break Journey</option></select></div>
-                    <div class="form-group"><label><i class="fas fa-map-marker-alt"></i> Pickup Location *</label><input type="text" id="pickup" required placeholder="e.g., Hubballi Railway Station, Near Kamat Hotel"></div>
-                    <div class="form-group"><label><i class="fas fa-flag-checkered"></i> <span id="dropLabel">Drop Location *</span></label><input type="text" id="drop" required placeholder="e.g., Hubballi Airport T2"></div>
+                    <div class="form-group"><label><i class="fas fa-map-marker-alt"></i> Pickup Location *</label><input type="text" id="pickup" required placeholder="e.g., Andheri Station, Near Pizza Hut"></div>
+                    <div class="form-group"><label><i class="fas fa-flag-checkered"></i> <span id="dropLabel">Drop Location *</span></label><input type="text" id="drop" required placeholder="e.g., Mumbai Airport T2"></div>
                     <div id="roundTripFields" style="display:none;"><div class="form-row"><div class="form-group"><label><i class="fas fa-calendar-alt"></i> Return Date *</label><input type="date" id="returnDate"></div><div class="form-group"><label><i class="fas fa-clock"></i> Return Pickup Time *</label><input type="time" id="returnTime"></div></div><div class="form-group"><label><i class="fas fa-map-marker-alt"></i> Return Drop Location (if different)</label><input type="text" id="returnDrop" placeholder="Leave blank if same as original pickup"></div></div>
                     <div id="multiStopFields" style="display:none;"><div id="stopsContainer"><div class="stop-entry"><div class="form-row"><div class="form-group"><label>Stop 1 Location</label><input type="text" class="stop-location" placeholder="e.g., Powai Lake"></div><div class="form-group"><label>Halt (minutes)</label><input type="number" class="stop-halt" placeholder="30" min="0" step="10"></div></div></div></div><button type="button" id="addStopBtn" class="add-stop-btn"><i class="fas fa-plus"></i> Add another stop (max 3)</button><small class="form-note">You can add up to 3 intermediate stops. The final drop is the main drop location above.</small></div>
                     <div class="form-group"><label><i class="fas fa-info-circle"></i> Landmark / Special Instructions</label><textarea id="landmark" rows="2" placeholder="Gate number, building name, any specific instructions for the driver..."></textarea></div>
                     <div class="form-row"><div class="form-group"><label><i class="fas fa-calendar"></i> Journey Date *</label><input type="date" id="journeyDate" required></div><div class="form-group"><label><i class="fas fa-clock"></i> Pickup Time *</label><input type="time" id="pickupTime" required></div></div>
                     <div class="form-row"><div class="form-group"><label><i class="fas fa-users"></i> Passengers *</label><select id="passengers" required><option value="1">1 Passenger</option><option value="2">2 Passengers</option><option value="3">3 Passengers</option><option value="4">4 Passengers</option><option value="5">5 Passengers</option><option value="6">6 Passengers</option><option value="7">7 Passengers</option><option value="8">8 Passengers</option></select></div><div class="form-group"><label><i class="fas fa-suitcase"></i> Luggage</label><select id="luggage"><option value="None">No luggage</option><option value="1-2 small bags">1-2 small bags</option><option value="3-4 bags">3-4 bags</option><option value="Heavy luggage">Heavy luggage (inform)</option></select></div></div>
-                    <div class="form-group checkbox-group"> <label class="checkbox-label"><input type="checkbox" id="emailCopy"> <span><i class="fas fa-envelope"></i> Email me a copy of this booking</span> </label> <small style="display: block; margin-top: 5px; font-size: 0.75rem; color: #666;">We'll send trip details to your email address.</small>/div>
+                    
+                    <!-- Email copy checkbox (clarified) -->
+                    <div class="form-group checkbox-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="emailCopy"> 
+                            <span><i class="fas fa-envelope"></i> Email me a copy of this booking</span>
+                        </label>
+                        <small style="display: block; margin-top: 5px; font-size: 0.75rem; color: #666;">We'll send trip details to your email address.</small>
+                    </div>
+                    
                     <button type="submit" class="submit-btn" id="submitBtn"><span class="btn-text">Submit Booking</span><i class="fas fa-save"></i></button>
-                    <p class="form-note"><i class="fas fa-shield-alt"></i> Your details are secure. We'll respond within 25 minutes on WhatsApp/Phone Call.</p>
+                    <p class="form-note"><i class="fas fa-shield-alt"></i> Your details are secure. We'll respond within 20 minutes on WhatsApp.</p>
                 </form>
             </div>
         </div>
@@ -123,45 +144,29 @@
             <div class="footer-brand"><h3>Hitendra Tours & Travels</h3><p>EECO Van Service | Since 2015</p><p class="commitment">Total Commitment to Service Excellence</p></div>
             <div class="footer-contact"><h4>Contact</h4><p><i class="fas fa-phone"></i> <a href="tel:+919448301456">94483 01456</a></p><p><i class="fab fa-whatsapp"></i> <a href="https://wa.me/919448301456" target="_blank">WhatsApp: 94483 01456</a></p><p><i class="far fa-envelope"></i> hitendratours@gmail.com</p></div>
             <div class="footer-hours"><h4>Service Hours</h4><p id="footerHours">Loading...</p></div>
-            <div class="footer-address"><h4>Address</h4><p><i class="fas fa-map-marker-alt"></i> Hitendra Tours & Travels,<br>Plot#138,Manoj Paradise,KDO Residency<br>B10,2nd Floor,Keshwapur, Hubballi – 580023,<br>Maharashtra, India</p></div>
+            <div class="footer-address"><h4>Address</h4><p><i class="fas fa-map-marker-alt"></i> Hitendra Tours & Travels,<br>Shop No. 5, Sai Plaza,<br>Andheri East, Mumbai – 400069,<br>Maharashtra, India</p></div>
         </div>
         <div class="footer-bottom"><p>&copy; 2026 Hitendra Tours & Travels. All rights reserved.</p></div>
     </div>
 </footer>
 
 <div id="toast" class="toast"></div>
-<script src="script.js"></script>
+
+<!-- Anti-DevTools Script -->
 <script>
-    // Disable right-click
     document.addEventListener('contextmenu', function(e) {
         e.preventDefault();
         alert("🔒 Right-click is disabled for security reasons.\nIf you need to contact us, please use the WhatsApp button.");
         return false;
     });
-
-    // Disable F12, Ctrl+Shift+I, Ctrl+U, Ctrl+S
     document.addEventListener('keydown', function(e) {
-        if (e.key === 'F12') {
-            e.preventDefault();
-            alert("🔒 Developer tools are disabled.\nFor assistance, please contact us directly.");
-            return false;
-        }
-        if ((e.ctrlKey && e.shiftKey && e.key === 'I') || (e.metaKey && e.altKey && e.key === 'I')) {
-            e.preventDefault();
-            alert("🔒 Developer tools are disabled.\nFor assistance, please contact us directly.");
-            return false;
-        }
-        if ((e.ctrlKey && e.key === 'u') || (e.metaKey && e.key === 'u')) {
-            e.preventDefault();
-            alert("🔒 View source is disabled.\nFor any queries, please reach out to us.");
-            return false;
-        }
-        if ((e.ctrlKey && e.key === 's') || (e.metaKey && e.key === 's')) {
-            e.preventDefault();
-            alert("🔒 Saving the page is not allowed.\nThank you for your understanding.");
-            return false;
-        }
+        if (e.key === 'F12') { e.preventDefault(); alert("🔒 Developer tools are disabled.\nFor assistance, please contact us directly."); return false; }
+        if ((e.ctrlKey && e.shiftKey && e.key === 'I') || (e.metaKey && e.altKey && e.key === 'I')) { e.preventDefault(); alert("🔒 Developer tools are disabled.\nFor assistance, please contact us directly."); return false; }
+        if ((e.ctrlKey && e.key === 'u') || (e.metaKey && e.key === 'u')) { e.preventDefault(); alert("🔒 View source is disabled.\nFor any queries, please reach out to us."); return false; }
+        if ((e.ctrlKey && e.key === 's') || (e.metaKey && e.key === 's')) { e.preventDefault(); alert("🔒 Saving the page is not allowed.\nThank you for your understanding."); return false; }
     });
 </script>
+
+<script src="script.js"></script>
 </body>
 </html>
