@@ -134,5 +134,37 @@
 
 <div id="toast" class="toast"></div>
 <script src="script.js"></script>
+<script>
+    // Disable right-click
+    document.addEventListener('contextmenu', function(e) {
+        e.preventDefault();
+        alert("🔒 Right-click is disabled for security reasons.\nIf you need to contact us, please use the WhatsApp button.");
+        return false;
+    });
+
+    // Disable F12, Ctrl+Shift+I, Ctrl+U, Ctrl+S
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'F12') {
+            e.preventDefault();
+            alert("🔒 Developer tools are disabled.\nFor assistance, please contact us directly.");
+            return false;
+        }
+        if ((e.ctrlKey && e.shiftKey && e.key === 'I') || (e.metaKey && e.altKey && e.key === 'I')) {
+            e.preventDefault();
+            alert("🔒 Developer tools are disabled.\nFor assistance, please contact us directly.");
+            return false;
+        }
+        if ((e.ctrlKey && e.key === 'u') || (e.metaKey && e.key === 'u')) {
+            e.preventDefault();
+            alert("🔒 View source is disabled.\nFor any queries, please reach out to us.");
+            return false;
+        }
+        if ((e.ctrlKey && e.key === 's') || (e.metaKey && e.key === 's')) {
+            e.preventDefault();
+            alert("🔒 Saving the page is not allowed.\nThank you for your understanding.");
+            return false;
+        }
+    });
+</script>
 </body>
 </html>
