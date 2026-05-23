@@ -12,7 +12,7 @@
         .login-container h2 { margin-bottom: 20px; color: #1e3c5c; }
         .login-container input { width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 6px; }
         .login-container button { width: 100%; padding: 12px; background: #1e3c5c; color: white; border: none; border-radius: 6px; cursor: pointer; }
-        .error { color: red; margin-top: 10px; }
+        .error { color: red; margin-top: 10px; white-space: pre-line; }
         .dashboard { display: none; }
         .header { background: #1e3c5c; color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-radius: 8px; margin-bottom: 20px; flex-wrap: wrap; gap: 10px; }
         .logout-btn, .change-pwd-btn { background: #e67e22; border: none; padding: 8px 16px; border-radius: 4px; color: white; cursor: pointer; }
@@ -95,56 +95,75 @@
 </div>
 
 <script>
+    // ========== UPDATE THIS URL ==========
+    const GAS_URL = "https://script.google.com/macros/s/AKfycbzPsFmeUs8it121G5HkJagKml6_4bnmcHEQ19kmYge1YXYYS_8a4zwvqPEgmQxabAM3Og/exec";
+    // ====================================
+    let authToken = null;
+
+    // ========== LOGIN FUNCTION (with error handling) ==========
     async function login() {
-    const pwd = document.getElementById('adminPassword').value;
-    const errorDiv = document.getElementById('loginError');
-    const loginBtn = document.querySelector('#loginScreen button');
-    
-    errorDiv.innerText = '';  // Clear previous error
-    
-    if (!pwd.trim()) {
-        errorDiv.innerText = '❌ Please enter the admin password.';
-        return;
-    }
-    
-    const originalText = loginBtn.innerText;
-    loginBtn.innerText = 'Logging in...';
-    loginBtn.disabled = true;
-    
-    try {
-        const res = await fetch(`${GAS_URL}?action=adminLogin&password=${encodeURIComponent(pwd)}`);
-        const data = await res.json();
-        if (data.success) {
-            authToken = data.token;
-            document.getElementById('loginScreen').style.display = 'none';
-            document.getElementById('dashboard').style.display = 'block';
-            loadBookings();
-        } else {
-            errorDiv.innerText = '❌ ' + (data.error || 'Invalid password. Please try again.');
+        const pwd = document.getElementById('adminPassword').value;
+        const errorDiv = document.getElementById('loginError');
+        const loginBtn = document.querySelector('#loginScreen button');
+        
+        errorDiv.innerText = '';
+        if (!pwd.trim()) {
+            errorDiv.innerText = '❌ Please enter the admin password.';
+            return;
         }
-    } catch (err) {
-        errorDiv.innerText = '❌ Network error. Please check your connection.';
-    } finally {
-        loginBtn.innerText = originalText;
-        loginBtn.disabled = false;
+        
+        const originalText = loginBtn.innerText;
+        loginBtn.innerText = 'Logging in...';
+        loginBtn.disabled = true;
+        
+        try {
+            const res = await fetch(`${GAS_URL}?action=adminLogin&password=${encodeURIComponent(pwd)}`, {
+                method: 'GET',
+                cache: 'no-store'
+            });
+            if (!res.ok) {
+                throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+            }
+            const data = await res.json();
+            if (data.success) {
+                authToken = data.token;
+                document.getElementById('loginScreen').style.display = 'none';
+                document.getElementById('dashboard').style.display = 'block';
+                loadBookings();
+            } else {
+                errorDiv.innerText = '❌ ' + (data.error || 'Invalid password. Please try again.');
+            }
+        } catch (err) {
+            console.error('Login error:', err);
+            errorDiv.innerText = '❌ Network error. Please check:\n- Your internet connection\n- The GAS URL is correct\n- The script is deployed as "Anyone" can access';
+        } finally {
+            loginBtn.innerText = originalText;
+            loginBtn.disabled = false;
+        }
     }
-}
 
-    function showError(msg) { let e = document.getElementById('loginError'); e.innerText = msg; setTimeout(() => e.innerText = '', 3000); }
-
+    // ========== OTHER FUNCTIONS (loadBookings, renderTable, etc.) ==========
     async function loadBookings() {
         if (!authToken) return;
         document.getElementById('tableLoader').style.display = 'block';
         document.getElementById('bookingsTable').style.display = 'none';
-        const res = await fetch(`${GAS_URL}?action=getAllBookings&token=${authToken}`);
-        const data = await res.json();
-        if (data.success) {
-            window.allBookings = data.bookings;
-            updateStats(window.allBookings);
-            renderTable(window.allBookings);
-            document.getElementById('tableLoader').style.display = 'none';
-            document.getElementById('bookingsTable').style.display = 'table';
-        } else { alert("Session expired. Please login again."); logout(); }
+        try {
+            const res = await fetch(`${GAS_URL}?action=getAllBookings&token=${authToken}`);
+            const data = await res.json();
+            if (data.success) {
+                window.allBookings = data.bookings;
+                updateStats(window.allBookings);
+                renderTable(window.allBookings);
+                document.getElementById('tableLoader').style.display = 'none';
+                document.getElementById('bookingsTable').style.display = 'table';
+            } else {
+                alert("Session expired. Please login again.");
+                logout();
+            }
+        } catch (err) {
+            alert("Failed to load bookings. Check your connection.");
+            logout();
+        }
     }
 
     function updateStats(bookings) {
@@ -220,13 +239,15 @@
 
     async function updateBooking(bookingId, newStatus, fare, paymentStatus) {
         if (!authToken) return;
-        const res = await fetch(`${GAS_URL}?action=updateBooking&token=${authToken}`, {
-            method: 'POST', headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ bookingId, status: newStatus, fare: fare ? parseInt(fare) : null, paymentStatus })
-        });
-        const data = await res.json();
-        if (data.success) { alert('Booking updated!'); loadBookings(); }
-        else alert('Error: ' + data.error);
+        try {
+            const res = await fetch(`${GAS_URL}?action=updateBooking&token=${authToken}`, {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ bookingId, status: newStatus, fare: fare ? parseInt(fare) : null, paymentStatus })
+            });
+            const data = await res.json();
+            if (data.success) { alert('Booking updated!'); loadBookings(); }
+            else alert('Error: ' + data.error);
+        } catch (err) { alert('Network error'); }
     }
 
     function requestPayment(bookingId, phone, name, fare) {
@@ -249,48 +270,18 @@
         const confirm = document.getElementById('confirmPwd').value;
         if (!current || !newPwd) { document.getElementById('pwdMsg').innerText = 'Please fill all fields'; return; }
         if (newPwd !== confirm) { document.getElementById('pwdMsg').innerText = 'New passwords do not match'; return; }
-        const res = await fetch(`${GAS_URL}?action=changePassword&token=${authToken}`, {
-            method: 'POST', headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ currentPassword: current, newPassword: newPwd })
-        });
-        const data = await res.json();
-        if (data.success) { alert('Password changed successfully! Please login again.'); logout(); }
-        else { document.getElementById('pwdMsg').innerText = data.error || 'Failed to change password'; }
+        try {
+            const res = await fetch(`${GAS_URL}?action=changePassword&token=${authToken}`, {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ currentPassword: current, newPassword: newPwd })
+            });
+            const data = await res.json();
+            if (data.success) { alert('Password changed successfully! Please login again.'); logout(); }
+            else { document.getElementById('pwdMsg').innerText = data.error || 'Failed to change password'; }
+        } catch (err) { document.getElementById('pwdMsg').innerText = 'Network error'; }
     }
 
     function logout() { authToken = null; document.getElementById('dashboard').style.display = 'none'; document.getElementById('loginScreen').style.display = 'block'; document.getElementById('adminPassword').value = ''; }
-</script>
-<script>
-    // Disable right-click
-    document.addEventListener('contextmenu', function(e) {
-        e.preventDefault();
-        alert("🔒 Right-click is disabled for security reasons.\nIf you need to contact us, please use the WhatsApp button.");
-        return false;
-    });
-
-    // Disable F12, Ctrl+Shift+I, Ctrl+U, Ctrl+S
-    document.addEventListener('keydown', function(e) {
-        if (e.key === 'F12') {
-            e.preventDefault();
-            alert("🔒 Developer tools are disabled.\nFor assistance, please contact us directly.");
-            return false;
-        }
-        if ((e.ctrlKey && e.shiftKey && e.key === 'I') || (e.metaKey && e.altKey && e.key === 'I')) {
-            e.preventDefault();
-            alert("🔒 Developer tools are disabled.\nFor assistance, please contact us directly.");
-            return false;
-        }
-        if ((e.ctrlKey && e.key === 'u') || (e.metaKey && e.key === 'u')) {
-            e.preventDefault();
-            alert("🔒 View source is disabled.\nFor any queries, please reach out to us.");
-            return false;
-        }
-        if ((e.ctrlKey && e.key === 's') || (e.metaKey && e.key === 's')) {
-            e.preventDefault();
-            alert("🔒 Saving the page is not allowed.\nThank you for your understanding.");
-            return false;
-        }
-    });
 </script>
 </body>
 </html>
