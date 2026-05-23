@@ -126,3 +126,4 @@ body { font-family:'Poppins',sans-serif; color:var(--text-dark); line-height:1.6
 .btn-whatsapp { background:#25D366; color:white; }
 .btn-whatsapp:hover { background:#128C7E; }
 @media (max-width:768px) { .hero h1 { font-size:2rem; } .booking-wrapper { grid-template-columns:1fr; } .form-row { grid-template-columns:1fr; gap:15px; } .fleet-card { flex-direction:column; text-align:center; } }
+.rupee-icon svg {width: 48px;height: 48px;margin-bottom: 15px; }
