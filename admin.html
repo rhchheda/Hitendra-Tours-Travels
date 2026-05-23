@@ -95,12 +95,23 @@
 </div>
 
 <script>
-    const GAS_URL = "https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec";
-    let authToken = null;
-
     async function login() {
-        const pwd = document.getElementById('adminPassword').value;
-        if (!pwd) { showError("Enter password"); return; }
+    const pwd = document.getElementById('adminPassword').value;
+    const errorDiv = document.getElementById('loginError');
+    const loginBtn = document.querySelector('#loginScreen button');
+    
+    errorDiv.innerText = '';  // Clear previous error
+    
+    if (!pwd.trim()) {
+        errorDiv.innerText = '❌ Please enter the admin password.';
+        return;
+    }
+    
+    const originalText = loginBtn.innerText;
+    loginBtn.innerText = 'Logging in...';
+    loginBtn.disabled = true;
+    
+    try {
         const res = await fetch(`${GAS_URL}?action=adminLogin&password=${encodeURIComponent(pwd)}`);
         const data = await res.json();
         if (data.success) {
@@ -108,8 +119,16 @@
             document.getElementById('loginScreen').style.display = 'none';
             document.getElementById('dashboard').style.display = 'block';
             loadBookings();
-        } else showError("Invalid password");
+        } else {
+            errorDiv.innerText = '❌ ' + (data.error || 'Invalid password. Please try again.');
+        }
+    } catch (err) {
+        errorDiv.innerText = '❌ Network error. Please check your connection.';
+    } finally {
+        loginBtn.innerText = originalText;
+        loginBtn.disabled = false;
     }
+}
 
     function showError(msg) { let e = document.getElementById('loginError'); e.innerText = msg; setTimeout(() => e.innerText = '', 3000); }
 
@@ -240,6 +259,38 @@
     }
 
     function logout() { authToken = null; document.getElementById('dashboard').style.display = 'none'; document.getElementById('loginScreen').style.display = 'block'; document.getElementById('adminPassword').value = ''; }
+</script>
+<script>
+    // Disable right-click
+    document.addEventListener('contextmenu', function(e) {
+        e.preventDefault();
+        alert("🔒 Right-click is disabled for security reasons.\nIf you need to contact us, please use the WhatsApp button.");
+        return false;
+    });
+
+    // Disable F12, Ctrl+Shift+I, Ctrl+U, Ctrl+S
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'F12') {
+            e.preventDefault();
+            alert("🔒 Developer tools are disabled.\nFor assistance, please contact us directly.");
+            return false;
+        }
+        if ((e.ctrlKey && e.shiftKey && e.key === 'I') || (e.metaKey && e.altKey && e.key === 'I')) {
+            e.preventDefault();
+            alert("🔒 Developer tools are disabled.\nFor assistance, please contact us directly.");
+            return false;
+        }
+        if ((e.ctrlKey && e.key === 'u') || (e.metaKey && e.key === 'u')) {
+            e.preventDefault();
+            alert("🔒 View source is disabled.\nFor any queries, please reach out to us.");
+            return false;
+        }
+        if ((e.ctrlKey && e.key === 's') || (e.metaKey && e.key === 's')) {
+            e.preventDefault();
+            alert("🔒 Saving the page is not allowed.\nThank you for your understanding.");
+            return false;
+        }
+    });
 </script>
 </body>
 </html>
