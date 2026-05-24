@@ -39,6 +39,17 @@
         .toast-notify.show { opacity: 1; }
         .toast-notify.success { background: #27ae60; }
         .toast-notify.error { background: #e74c3c; }
+        .row-cancelled { opacity: 0.55; background: #f8d7da; }
+        .row-cancelled td { color: #888; }
+        .row-cancelled .cell-text { text-decoration: line-through; }
+        .reopen-btn { background: #6c757d; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; margin-right: 5px; }
+        .confirm-modal-body p { margin-bottom: 12px; }
+        .confirm-modal-body textarea { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 6px; margin-bottom: 15px; font-family: inherit; resize: vertical; }
+        .confirm-actions { display: flex; gap: 10px; }
+        .confirm-actions button { flex: 1; padding: 10px; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; }
+        .btn-confirm-danger { background: #e74c3c; color: white; }
+        .btn-confirm-go { background: #27ae60; color: white; }
+        .btn-confirm-cancel { background: #e0e0e0; color: #333; }
         @media (max-width: 768px) { th, td { font-size: 12px; padding: 8px; } }
     </style>
 </head>
@@ -88,6 +99,20 @@
 </div>
 
 <div id="toastContainer" class="toast-notify"></div>
+
+<div id="confirmModal" class="modal-overlay" style="display:none;">
+    <div class="modal">
+        <div class="modal-header"><h3 id="confirmTitle">Please confirm</h3><button onclick="closeConfirmModal()" style="background:none; border:none; color:white; font-size:20px;">&times;</button></div>
+        <div class="modal-body confirm-modal-body">
+            <p id="confirmMessage"></p>
+            <textarea id="confirmReason" rows="2" placeholder="Reason (optional) — e.g. Customer request, Duplicate, No vehicle" style="display:none;"></textarea>
+            <div class="confirm-actions">
+                <button class="btn-confirm-cancel" onclick="closeConfirmModal()">No, go back</button>
+                <button id="confirmProceedBtn" class="btn-confirm-danger">Yes, proceed</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 <script>
     const GAS_URL = "https://script.google.com/macros/s/AKfycbwFls5uasexKXAPPkRrjJ6xwLML-yS0u5GnsHwr3YxOxItT6fg16JPR6XT7IL3Ui5t6/exec"; // REPLACE!
@@ -200,16 +225,19 @@
         tbody.innerHTML = '';
         bookings.forEach(b => {
             const row = tbody.insertRow();
-            row.insertCell(0).innerText = b.BookingID || '-';
-            row.insertCell(1).innerText = b.BookingDate ? formatDateIST(b.BookingDate) : '-';
-            row.insertCell(2).innerText = b.CustomerName || '-';
-            row.insertCell(3).innerText = b.Phone || '-';
-            row.insertCell(4).innerText = b.Service || '-';
-            row.insertCell(5).innerText = b.TripType || 'One Way';
-            row.insertCell(6).innerText = b.Pickup || '-';
-            row.insertCell(7).innerText = b.Drop || '-';
-            row.insertCell(8).innerText = b.JourneyDate ? formatDateIST(b.JourneyDate) : '-';
-            row.insertCell(9).innerText = b.PickupTime ? formatTimeIST(b.PickupTime) : '-';
+            const isCancelled = (b.Status || 'Pending') === 'Cancelled';
+            if (isCancelled) row.classList.add('row-cancelled');
+            const tc = (i, val) => { const c = row.insertCell(i); const s = document.createElement('span'); s.className = 'cell-text'; s.innerText = val; c.appendChild(s); };
+            tc(0, b.BookingID || '-');
+            tc(1, b.BookingDate ? formatDateIST(b.BookingDate) : '-');
+            tc(2, b.CustomerName || '-');
+            tc(3, b.Phone || '-');
+            tc(4, b.Service || '-');
+            tc(5, b.TripType || 'One Way');
+            tc(6, b.Pickup || '-');
+            tc(7, b.Drop || '-');
+            tc(8, b.JourneyDate ? formatDateIST(b.JourneyDate) : '-');
+            tc(9, b.PickupTime ? formatTimeIST(b.PickupTime) : '-');
 
             const statusCell = row.insertCell(10);
             const statusSelect = document.createElement('select'); statusSelect.className = 'status-select';
@@ -236,15 +264,28 @@
             paymentCell.appendChild(paySelect);
 
             const actionCell = row.insertCell(13);
-            const updateBtn = document.createElement('button'); updateBtn.innerText = 'Update'; updateBtn.className = 'update-btn';
-            updateBtn.onclick = () => updateBooking(b.BookingID, statusSelect.value, fareInput.value, paySelect.value, updateBtn);
-            actionCell.appendChild(updateBtn);
-            const payReqBtn = document.createElement('button'); payReqBtn.innerText = 'Request Payment'; payReqBtn.className = 'send-msg-btn payment-btn';
-            payReqBtn.onclick = () => requestPayment(b.BookingID, b.Phone, b.CustomerName, fareInput.value);
-            actionCell.appendChild(payReqBtn);
-            const whatsBtn = document.createElement('button'); whatsBtn.innerText = 'WhatsApp'; whatsBtn.className = 'send-msg-btn';
-            whatsBtn.onclick = () => sendWhatsAppToCustomer(b.CustomerName, b.Phone, b.BookingID, fareInput.value);
-            actionCell.appendChild(whatsBtn);
+            if (isCancelled) {
+                // Settled state: lock editing controls, offer a deliberate Reopen instead.
+                statusSelect.disabled = true;
+                fareInput.disabled = true;
+                paySelect.disabled = true;
+                const reopenBtn = document.createElement('button'); reopenBtn.innerText = 'Reopen'; reopenBtn.className = 'reopen-btn';
+                reopenBtn.onclick = () => confirmReopen(b.BookingID, reopenBtn);
+                actionCell.appendChild(reopenBtn);
+                const whatsBtn = document.createElement('button'); whatsBtn.innerText = 'WhatsApp'; whatsBtn.className = 'send-msg-btn';
+                whatsBtn.onclick = () => sendWhatsAppToCustomer(b.CustomerName, b.Phone, b.BookingID, fareInput.value);
+                actionCell.appendChild(whatsBtn);
+            } else {
+                const updateBtn = document.createElement('button'); updateBtn.innerText = 'Update'; updateBtn.className = 'update-btn';
+                updateBtn.onclick = () => handleUpdateClick(b.BookingID, b.Status || 'Pending', statusSelect.value, fareInput.value, paySelect.value, updateBtn);
+                actionCell.appendChild(updateBtn);
+                const payReqBtn = document.createElement('button'); payReqBtn.innerText = 'Request Payment'; payReqBtn.className = 'send-msg-btn payment-btn';
+                payReqBtn.onclick = () => requestPayment(b.BookingID, b.Phone, b.CustomerName, fareInput.value);
+                actionCell.appendChild(payReqBtn);
+                const whatsBtn = document.createElement('button'); whatsBtn.innerText = 'WhatsApp'; whatsBtn.className = 'send-msg-btn';
+                whatsBtn.onclick = () => sendWhatsAppToCustomer(b.CustomerName, b.Phone, b.BookingID, fareInput.value);
+                actionCell.appendChild(whatsBtn);
+            }
         });
     }
 
@@ -261,7 +302,63 @@
         renderTable(filtered);
     }
 
-    async function updateBooking(bookingId, newStatus, fare, paymentStatus, btn) {
+    // ---- Confirmation modal (reusable) ----
+    let pendingConfirmAction = null;
+    function openConfirmModal({ title, message, showReason, proceedLabel, danger, onProceed }) {
+        document.getElementById('confirmTitle').innerText = title;
+        document.getElementById('confirmMessage').innerText = message;
+        const reasonEl = document.getElementById('confirmReason');
+        reasonEl.style.display = showReason ? 'block' : 'none';
+        reasonEl.value = '';
+        const btn = document.getElementById('confirmProceedBtn');
+        btn.innerText = proceedLabel || 'Yes, proceed';
+        btn.className = danger ? 'btn-confirm-danger' : 'btn-confirm-go';
+        pendingConfirmAction = onProceed;
+        document.getElementById('confirmModal').style.display = 'flex';
+    }
+    function closeConfirmModal() {
+        document.getElementById('confirmModal').style.display = 'none';
+        pendingConfirmAction = null;
+    }
+    document.getElementById('confirmProceedBtn').addEventListener('click', () => {
+        const reason = document.getElementById('confirmReason').value.trim();
+        const action = pendingConfirmAction;
+        closeConfirmModal();
+        if (action) action(reason);
+    });
+
+    // Gate the Update click: ask for confirmation when moving into a settled state.
+    function handleUpdateClick(bookingId, currentStatus, newStatus, fare, paymentStatus, btn) {
+        if (newStatus === 'Cancelled' && currentStatus !== 'Cancelled') {
+            openConfirmModal({
+                title: 'Cancel this booking?',
+                message: `Booking ${bookingId} will be marked Cancelled and locked from further edits. You can Reopen it later if needed.`,
+                showReason: true, proceedLabel: 'Yes, cancel booking', danger: true,
+                onProceed: (reason) => updateBooking(bookingId, newStatus, fare, paymentStatus, btn, reason)
+            });
+        } else if (newStatus === 'Completed' && currentStatus !== 'Completed') {
+            openConfirmModal({
+                title: 'Mark as completed?',
+                message: `Booking ${bookingId} will be marked Completed.`,
+                showReason: false, proceedLabel: 'Yes, mark completed', danger: false,
+                onProceed: () => updateBooking(bookingId, newStatus, fare, paymentStatus, btn)
+            });
+        } else {
+            updateBooking(bookingId, newStatus, fare, paymentStatus, btn);
+        }
+    }
+
+    // Reopen a cancelled booking back to Pending (deliberate, confirmed).
+    function confirmReopen(bookingId, btn) {
+        openConfirmModal({
+            title: 'Reopen this booking?',
+            message: `Booking ${bookingId} will be moved back to Pending and become editable again.`,
+            showReason: false, proceedLabel: 'Yes, reopen', danger: false,
+            onProceed: () => updateBooking(bookingId, 'Pending', null, null, btn)
+        });
+    }
+
+    async function updateBooking(bookingId, newStatus, fare, paymentStatus, btn, note) {
         if (!authToken) return;
         const orig = btn ? btn.innerText : '';
         if (btn) { btn.disabled = true; btn.innerText = 'Saving…'; }
@@ -271,7 +368,7 @@
             const res = await fetch(`${GAS_URL}?action=updateBooking&token=${authToken}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                body: JSON.stringify({ bookingId, status: newStatus, fare: fare ? parseInt(fare) : null, paymentStatus })
+                body: JSON.stringify({ bookingId, status: newStatus, fare: fare ? parseInt(fare) : null, paymentStatus, note: note || null })
             });
             if (!res.ok) throw new Error(`HTTP ${res.status}`);
             const data = await res.json();
