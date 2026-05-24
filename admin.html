@@ -35,7 +35,6 @@
         .modal { background:white; border-radius:12px; max-width:400px; width:90%; }
         .modal-header { background:#1e3c5c; color:white; padding:15px; display:flex; justify-content:space-between; }
         .modal-body { padding:20px; }
-        /* Toast notification */
         .toast-notify { position: fixed; bottom: 20px; right: 20px; background: #333; color: white; padding: 12px 20px; border-radius: 8px; z-index: 2000; opacity: 0; transition: opacity 0.3s; pointer-events: none; }
         .toast-notify.show { opacity: 1; }
         .toast-notify.success { background: #27ae60; }
@@ -98,45 +97,36 @@
     </div>
 </div>
 
-<!-- Toast Container -->
 <div id="toastContainer" class="toast-notify"></div>
 
 <script>
     // ========== CONFIGURATION ==========
-    const GAS_URL = "https://script.google.com/macros/s/AKfycbwFls5uasexKXAPPkRrjJ6xwLML-yS0u5GnsHwr3YxOxItT6fg16JPR6XT7IL3Ui5t6/exec"; // REPLACE WITH YOUR ACTUAL URL
+    const GAS_URL = "https://script.google.com/macros/s/AKfycbwFls5uasexKXAPPkRrjJ6xwLML-yS0u5GnsHwr3YxOxItT6fg16JPR6XT7IL3Ui5t6/exec"; // REPLACE THIS
     let authToken = null;
     let allBookings = [];
 
-    // ========== HELPER: Show Toast Message ==========
     function showToast(message, type = 'success') {
         const toast = document.getElementById('toastContainer');
         toast.textContent = message;
         toast.className = `toast-notify ${type} show`;
-        setTimeout(() => {
-            toast.classList.remove('show');
-        }, 3000);
+        setTimeout(() => toast.classList.remove('show'), 3000);
     }
 
-    // ========== HELPER: Format Phone for WhatsApp (India) ==========
     function formatPhoneForWA(phone) {
+        if (!phone) return '';
         let clean = phone.toString().replace(/\D/g, '');
         if (clean.length === 10) clean = '91' + clean;
         if (!clean.startsWith('91')) clean = '91' + clean;
         return clean;
     }
 
-    // ========== LOGIN ==========
     async function login() {
         const pwd = document.getElementById('adminPassword').value;
         const errorDiv = document.getElementById('loginError');
-        if (!pwd.trim()) {
-            errorDiv.innerText = 'Please enter the admin password.';
-            return;
-        }
-        const loginBtn = document.querySelector('#loginScreen button');
-        const originalText = loginBtn.innerText;
-        loginBtn.innerText = 'Logging in...';
-        loginBtn.disabled = true;
+        if (!pwd.trim()) { errorDiv.innerText = 'Please enter password.'; return; }
+        const btn = document.querySelector('#loginScreen button');
+        const orig = btn.innerText;
+        btn.innerText = 'Logging in...'; btn.disabled = true;
         try {
             const res = await fetch(`${GAS_URL}?action=adminLogin&password=${encodeURIComponent(pwd)}`);
             if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -152,14 +142,11 @@
             }
         } catch (err) {
             errorDiv.innerText = 'Network error. Check GAS URL and deployment.';
-            console.error(err);
         } finally {
-            loginBtn.innerText = originalText;
-            loginBtn.disabled = false;
+            btn.innerText = orig; btn.disabled = false;
         }
     }
 
-    // ========== LOAD BOOKINGS (using column indices for reliability) ==========
     async function loadBookings() {
         if (!authToken) return;
         document.getElementById('tableLoader').style.display = 'block';
@@ -169,9 +156,6 @@
             if (!res.ok) throw new Error(`HTTP ${res.status}`);
             const data = await res.json();
             if (data.success) {
-                // data.bookings is an array of objects with keys from sheet headers.
-                // We'll map them to a simpler structure using indices or expected keys.
-                // But to avoid undefined, we'll use the raw object directly with fallbacks.
                 allBookings = data.bookings;
                 updateStats(allBookings);
                 renderTable(allBookings);
@@ -182,18 +166,16 @@
                 logout();
             }
         } catch (err) {
-            console.error('Load error:', err);
-            showToast('Failed to load bookings. Check network and GAS URL.', 'error');
-            document.getElementById('tableLoader').innerHTML = 'Failed to load. <button onclick="loadBookings()">Retry</button>';
+            showToast('Failed to load bookings. Check network.', 'error');
+            document.getElementById('tableLoader').innerHTML = 'Failed. <button onclick="loadBookings()">Retry</button>';
         }
     }
 
-    // ========== UPDATE STATS ==========
     function updateStats(bookings) {
-        const pending = bookings.filter(b => b['📋 Status'] === 'Pending' || b.Status === 'Pending').length;
-        const quoted = bookings.filter(b => b['📋 Status'] === 'Quoted' || b.Status === 'Quoted').length;
-        const confirmed = bookings.filter(b => b['📋 Status'] === 'Confirmed' || b.Status === 'Confirmed').length;
-        const completed = bookings.filter(b => b['📋 Status'] === 'Completed' || b.Status === 'Completed').length;
+        const pending = bookings.filter(b => b.Status === 'Pending').length;
+        const quoted = bookings.filter(b => b.Status === 'Quoted').length;
+        const confirmed = bookings.filter(b => b.Status === 'Confirmed').length;
+        const completed = bookings.filter(b => b.Status === 'Completed').length;
         document.getElementById('stats').innerHTML = `
             <div class="stat-card"><h3>${pending}</h3><p>Pending</p></div>
             <div class="stat-card"><h3>${quoted}</h3><p>Quoted</p></div>
@@ -202,97 +184,73 @@
         `;
     }
 
-    // ========== RENDER TABLE (access properties safely) ==========
     function renderTable(bookings) {
         const tbody = document.getElementById('bookingsBody');
         tbody.innerHTML = '';
         bookings.forEach(b => {
-            // Helper to get property by possible names
-            const getProp = (key, altKey) => b[key] !== undefined ? b[key] : b[altKey];
-            const bookingId = getProp('🚐 Booking ID', 'Booking ID');
-            const bookingDate = getProp('📅 Booking Date', 'Booking Date');
-            const customerName = getProp('👤 Customer Name', 'Customer Name');
-            const phone = getProp('📞 Phone', 'Phone');
-            const service = getProp('🛎️ Service', 'Service');
-            const tripType = getProp('🚗 Trip Type', 'Trip Type') || 'One Way';
-            const pickup = getProp('📍 Pickup', 'Pickup');
-            const drop = getProp('🏁 Drop', 'Drop');
-            const journeyDate = getProp('📆 Journey Date', 'Journey Date');
-            const pickupTime = getProp('⏰ Pickup Time', 'Pickup Time');
-            const status = getProp('📋 Status', 'Status') || 'Pending';
-            const fare = getProp('💰 Fare (₹)', 'Fare (₹)') || '';
-            const paymentStatus = getProp('💵 Payment Status', 'Payment Status') || 'Pending';
-
             const row = tbody.insertRow();
-            row.insertCell(0).innerText = bookingId || '-';
-            row.insertCell(1).innerText = bookingDate ? new Date(bookingDate).toLocaleDateString() : '-';
-            row.insertCell(2).innerText = customerName || '-';
-            row.insertCell(3).innerText = phone || '-';
-            row.insertCell(4).innerText = service || '-';
-            row.insertCell(5).innerText = tripType;
-            row.insertCell(6).innerText = pickup || '-';
-            row.insertCell(7).innerText = drop || '-';
-            row.insertCell(8).innerText = journeyDate || '-';
-            row.insertCell(9).innerText = pickupTime || '-';
+            row.insertCell(0).innerText = b.BookingID || '-';
+            const bookingDate = b.BookingDate ? new Date(b.BookingDate).toLocaleDateString() : '-';
+            row.insertCell(1).innerText = bookingDate;
+            row.insertCell(2).innerText = b.CustomerName || '-';
+            row.insertCell(3).innerText = b.Phone || '-';
+            row.insertCell(4).innerText = b.Service || '-';
+            row.insertCell(5).innerText = b.TripType || 'One Way';
+            row.insertCell(6).innerText = b.Pickup || '-';
+            row.insertCell(7).innerText = b.Drop || '-';
+            row.insertCell(8).innerText = b.JourneyDate || '-';
+            row.insertCell(9).innerText = b.PickupTime || '-';
 
-            // Status dropdown
             const statusCell = row.insertCell(10);
-            const select = document.createElement('select'); select.className = 'status-select';
+            const statusSelect = document.createElement('select'); statusSelect.className = 'status-select';
             ['Pending','Quoted','Confirmed','Completed','Cancelled'].forEach(s => {
                 const opt = document.createElement('option'); opt.value = s; opt.text = s;
-                if (s === status) opt.selected = true;
-                select.appendChild(opt);
+                if (s === (b.Status || 'Pending')) opt.selected = true;
+                statusSelect.appendChild(opt);
             });
-            statusCell.appendChild(select);
+            statusCell.appendChild(statusSelect);
 
-            // Fare input
             const fareCell = row.insertCell(11);
             const fareInput = document.createElement('input');
-            fareInput.type = 'number'; fareInput.value = fare; fareInput.placeholder = 'Fare';
+            fareInput.type = 'number'; fareInput.value = b.Fare || ''; fareInput.placeholder = 'Fare';
             fareInput.style.width = '80px'; fareInput.className = 'fare-input';
             fareCell.appendChild(fareInput);
 
-            // Payment status dropdown
             const paymentCell = row.insertCell(12);
             const paySelect = document.createElement('select'); paySelect.className = 'payment-select';
             ['Pending','Requested','Paid (Cash)','Paid (UPI)','Paid (NEFT)','Receipt Sent'].forEach(s => {
                 const opt = document.createElement('option'); opt.value = s; opt.text = s;
-                if (s === paymentStatus) opt.selected = true;
+                if (s === (b.PaymentStatus || 'Pending')) opt.selected = true;
                 paySelect.appendChild(opt);
             });
             paymentCell.appendChild(paySelect);
 
-            // Actions
             const actionCell = row.insertCell(13);
             const updateBtn = document.createElement('button'); updateBtn.innerText = 'Update'; updateBtn.className = 'update-btn';
-            updateBtn.onclick = () => updateBooking(bookingId, select.value, fareInput.value, paySelect.value);
+            updateBtn.onclick = () => updateBooking(b.BookingID, statusSelect.value, fareInput.value, paySelect.value);
             actionCell.appendChild(updateBtn);
             const payReqBtn = document.createElement('button'); payReqBtn.innerText = 'Request Payment'; payReqBtn.className = 'send-msg-btn payment-btn';
-            payReqBtn.onclick = () => requestPayment(bookingId, phone, customerName, fareInput.value);
+            payReqBtn.onclick = () => requestPayment(b.BookingID, b.Phone, b.CustomerName, fareInput.value);
             actionCell.appendChild(payReqBtn);
             const whatsBtn = document.createElement('button'); whatsBtn.innerText = 'WhatsApp'; whatsBtn.className = 'send-msg-btn';
-            whatsBtn.onclick = () => sendWhatsAppToCustomer(customerName, phone, bookingId, fareInput.value);
+            whatsBtn.onclick = () => sendWhatsAppToCustomer(b.CustomerName, b.Phone, b.BookingID, fareInput.value);
             actionCell.appendChild(whatsBtn);
         });
     }
 
-    // ========== FILTER TABLE ==========
     function filterTable() {
         const search = document.getElementById('searchInput').value.toLowerCase();
         const statusFilter = document.getElementById('statusFilter').value;
         const filtered = allBookings.filter(b => {
-            const name = (b['👤 Customer Name'] || b['Customer Name'] || '').toLowerCase();
-            const phone = (b['📞 Phone'] || b['Phone'] || '');
-            const id = (b['🚐 Booking ID'] || b['Booking ID'] || '').toLowerCase();
-            const matchSearch = name.includes(search) || phone.includes(search) || id.includes(search);
-            const status = b['📋 Status'] || b['Status'] || 'Pending';
-            const matchStatus = statusFilter === '' || status === statusFilter;
+            const matchSearch = (b.CustomerName || '').toLowerCase().includes(search) ||
+                                (b.Phone || '').includes(search) ||
+                                (b.BookingID || '').toLowerCase().includes(search);
+            const matchStatus = statusFilter === '' || (b.Status === statusFilter);
             return matchSearch && matchStatus;
         });
         renderTable(filtered);
     }
 
-    // ========== UPDATE BOOKING (with proper error toasts) ==========
     async function updateBooking(bookingId, newStatus, fare, paymentStatus) {
         if (!authToken) return;
         try {
@@ -304,64 +262,48 @@
             if (!res.ok) throw new Error(`HTTP ${res.status}`);
             const data = await res.json();
             if (data.success) {
-                showToast('Booking updated successfully!', 'success');
+                showToast('Booking updated!', 'success');
                 loadBookings();
             } else {
                 showToast(data.error || 'Update failed.', 'error');
             }
         } catch (err) {
-            console.error(err);
-            showToast('Network error. Check your connection.', 'error');
+            showToast('Network error. Check connection.', 'error');
         }
     }
 
-    // ========== REQUEST PAYMENT (using wa.me, not API) ==========
     function requestPayment(bookingId, phone, name, fare) {
-        if (!phone) {
-            showToast('Customer phone number missing.', 'error');
-            return;
-        }
+        if (!phone) { showToast('Customer phone missing.', 'error'); return; }
         const waPhone = formatPhoneForWA(phone);
         const fareText = fare ? `₹${fare}` : 'to be advised';
-        const message = `Dear ${name},\n\nYour trip (ID: ${bookingId}) total fare is ${fareText}.\n\n💰 Payment Options:\n• UPI: hitendratours@okhdfcbank (PhonePe/GPay/Paytm)\n• Bank Transfer (NEFT/IMPS):\n  Bank: HDFC Bank\n  A/C Name: Hitendra Tours & Travels\n  A/C No: 123456789012\n  IFSC: HDFC0001234\n• Cash: Pay directly to driver at end of trip\n\nAfter payment, please reply with screenshot (for digital payments) or inform driver (for cash).\n\nThank you,\nHitendra Tours`;
-        const url = `https://wa.me/${waPhone}?text=${encodeURIComponent(message)}`;
-        window.open(url, '_blank');
+        const message = `Dear ${name},\n\nTrip ${bookingId} total fare is ${fareText}.\n\nPayment Options:\n• UPI: hitendratours@okhdfcbank\n• Bank: HDFC A/C 123456789012, IFSC HDFC0001234\n• Cash: Pay driver.\n\nThank you.\nHitendra Tours`;
+        window.open(`https://wa.me/${waPhone}?text=${encodeURIComponent(message)}`, '_blank');
     }
 
     function sendWhatsAppToCustomer(name, phone, bookingId, fare) {
-        if (!phone) {
-            showToast('Customer phone number missing.', 'error');
-            return;
-        }
+        if (!phone) { showToast('Customer phone missing.', 'error'); return; }
         const waPhone = formatPhoneForWA(phone);
-        const msg = `Hi ${name}, your booking ${bookingId} has been updated. Fare: ₹${fare || 'to be advised'}. Please reply to confirm.`;
+        const msg = `Hi ${name}, booking ${bookingId} updated. Fare: ₹${fare || 'to be advised'}. Please reply to confirm.`;
         window.open(`https://wa.me/${waPhone}?text=${encodeURIComponent(msg)}`, '_blank');
     }
 
-    // ========== PASSWORD CHANGE ==========
     function showChangePasswordModal() { document.getElementById('changePwdModal').style.display = 'flex'; }
     function closeChangePwdModal() { document.getElementById('changePwdModal').style.display = 'none'; document.getElementById('currentPwd').value = ''; document.getElementById('newPwd').value = ''; document.getElementById('confirmPwd').value = ''; document.getElementById('pwdMsg').innerText = ''; }
     async function changePassword() {
-        const current = document.getElementById('currentPwd').value;
+        const curr = document.getElementById('currentPwd').value;
         const newPwd = document.getElementById('newPwd').value;
         const confirm = document.getElementById('confirmPwd').value;
-        if (!current || !newPwd) { document.getElementById('pwdMsg').innerText = 'Please fill all fields'; return; }
-        if (newPwd !== confirm) { document.getElementById('pwdMsg').innerText = 'New passwords do not match'; return; }
+        if (!curr || !newPwd) { document.getElementById('pwdMsg').innerText = 'Fill all fields'; return; }
+        if (newPwd !== confirm) { document.getElementById('pwdMsg').innerText = 'Passwords do not match'; return; }
         try {
             const res = await fetch(`${GAS_URL}?action=changePassword&token=${authToken}`, {
                 method: 'POST', headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ currentPassword: current, newPassword: newPwd })
+                body: JSON.stringify({ currentPassword: curr, newPassword: newPwd })
             });
             const data = await res.json();
-            if (data.success) {
-                showToast('Password changed! Please login again.', 'success');
-                logout();
-            } else {
-                document.getElementById('pwdMsg').innerText = data.error || 'Failed';
-            }
-        } catch(err) {
-            document.getElementById('pwdMsg').innerText = 'Network error';
-        }
+            if (data.success) { showToast('Password changed! Please login again.', 'success'); logout(); }
+            else { document.getElementById('pwdMsg').innerText = data.error || 'Failed'; }
+        } catch(err) { document.getElementById('pwdMsg').innerText = 'Network error'; }
     }
 
     function logout() {
@@ -369,7 +311,7 @@
         document.getElementById('dashboard').style.display = 'none';
         document.getElementById('loginScreen').style.display = 'block';
         document.getElementById('adminPassword').value = '';
-        showToast('Logged out successfully.', 'success');
+        showToast('Logged out.', 'success');
     }
 </script>
 </body>
