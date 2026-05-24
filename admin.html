@@ -237,7 +237,7 @@
 
             const actionCell = row.insertCell(13);
             const updateBtn = document.createElement('button'); updateBtn.innerText = 'Update'; updateBtn.className = 'update-btn';
-            updateBtn.onclick = () => updateBooking(b.BookingID, statusSelect.value, fareInput.value, paySelect.value);
+            updateBtn.onclick = () => updateBooking(b.BookingID, statusSelect.value, fareInput.value, paySelect.value, updateBtn);
             actionCell.appendChild(updateBtn);
             const payReqBtn = document.createElement('button'); payReqBtn.innerText = 'Request Payment'; payReqBtn.className = 'send-msg-btn payment-btn';
             payReqBtn.onclick = () => requestPayment(b.BookingID, b.Phone, b.CustomerName, fareInput.value);
@@ -261,12 +261,16 @@
         renderTable(filtered);
     }
 
-    async function updateBooking(bookingId, newStatus, fare, paymentStatus) {
+    async function updateBooking(bookingId, newStatus, fare, paymentStatus, btn) {
         if (!authToken) return;
+        const orig = btn ? btn.innerText : '';
+        if (btn) { btn.disabled = true; btn.innerText = 'Saving…'; }
         try {
+            // text/plain avoids the CORS preflight (OPTIONS) that GAS doesn't answer,
+            // which was causing the false "Network error" on POST.
             const res = await fetch(`${GAS_URL}?action=updateBooking&token=${authToken}`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
                 body: JSON.stringify({ bookingId, status: newStatus, fare: fare ? parseInt(fare) : null, paymentStatus })
             });
             if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -279,6 +283,8 @@
             }
         } catch (err) {
             showToast('Network error. Check connection.', 'error');
+        } finally {
+            if (btn) { btn.disabled = false; btn.innerText = orig; }
         }
     }
 
@@ -307,7 +313,7 @@
         if (newPwd !== confirm) { document.getElementById('pwdMsg').innerText = 'Passwords do not match'; return; }
         try {
             const res = await fetch(`${GAS_URL}?action=changePassword&token=${authToken}`, {
-                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
                 body: JSON.stringify({ currentPassword: curr, newPassword: newPwd })
             });
             const data = await res.json();
