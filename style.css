@@ -184,3 +184,39 @@ body { font-family:'Poppins',sans-serif; color:var(--text-dark); line-height:1.6
     .fleet-card { flex-direction:column; text-align:center; }
     .advantage-grid { grid-template-columns:1fr; gap:20px; }
 }
+/* Fleet Gallery - 2 columns on desktop, 1 on mobile */
+.fleet-gallery {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+    flex: 1;
+    max-width: 500px;
+}
+.gallery-item {
+    text-align: center;
+}
+.gallery-item img {
+    width: 100%;
+    height: auto;
+    border-radius: 12px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    transition: transform 0.3s ease;
+    cursor: pointer;
+}
+.gallery-item img:hover {
+    transform: scale(1.02);
+}
+.image-caption {
+    font-size: 0.8rem;
+    color: var(--text-light);
+    margin-top: 8px;
+}
+@media (max-width: 768px) {
+    .fleet-gallery {
+        grid-template-columns: 1fr;
+        max-width: 100%;
+    }
+    .fleet-card {
+        flex-direction: column;
+    }
+}
