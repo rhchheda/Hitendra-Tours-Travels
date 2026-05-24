@@ -75,52 +75,69 @@
     </div>
 </section>
 
+<!-- Fleet Section with simple image gallery (no carousel) -->
 <section class="fleet">
     <div class="container">
         <h2 class="section-title">Our Fleet</h2>
         <div class="fleet-card">
             <div class="fleet-gallery">
-                <div class="gallery-item">
-                    <img src="assets/images/exterior.jpeg" alt="EECO Van Exterior Front" loading="lazy">
-                    <p class="image-caption">Exterior Front</p>
-                </div>
-                <div class="gallery-item">
-                    <img src="assets/images/exterior-1.jpeg" alt="EECO Van Exterior Side" loading="lazy">
-                    <p class="image-caption">Exterior Side</p>
-                </div>
-                <div class="gallery-item">
-                    <img src="assets/images/interior.jpeg" alt="Spacious Interior" loading="lazy">
-                    <p class="image-caption">Spacious Interior</p>
-                </div>
-                <div class="gallery-item">
-                    <img src="assets/images/interior-1.jpeg" alt="Comfortable Seating" loading="lazy">
-                    <p class="image-caption">Comfortable Seating</p>
-                </div>
+                <div class="gallery-item"><img src="assets/images/exterior.jpeg" alt="EECO Van Exterior Front" loading="lazy"><p class="image-caption">Exterior Front</p></div>
+                <div class="gallery-item"><img src="assets/images/exterior-1.jpeg" alt="EECO Van Exterior Side" loading="lazy"><p class="image-caption">Exterior Side</p></div>
+                <div class="gallery-item"><img src="assets/images/interior.jpeg" alt="Spacious Interior" loading="lazy"><p class="image-caption">Spacious Interior</p></div>
+                <div class="gallery-item"><img src="assets/images/interior-1.jpeg" alt="Comfortable Seating" loading="lazy"><p class="image-caption">Comfortable Seating</p></div>
             </div>
             <div class="fleet-details">
                 <h3>EECO Van</h3>
                 <p><strong>Capacity:</strong> Spacious seating for 6-8 passengers + luggage</p>
                 <p><strong>Features:</strong> A/C, ample legroom, charging points, sanitized</p>
-                <p><strong>Starting Price:</strong> Local ₹14/km | Outstation ₹12/km</p>
+                <div class="pricing-box">
+                    <h4>💰 Pricing Details</h4>
+                    <p><strong>Local Trips:</strong> Best price will be quoted based on distance & duration. Call or WhatsApp for instant quote.</p>
+                    <p><strong>Outstation Trips:</strong> ₹18/km (minimum 300 km per day) + ₹300 driver allowance per day.</p>
+                    <div class="breakup"><strong>Breakup (example for 300 km):</strong><br>• 300 km × ₹18 = ₹5,400<br>• Driver allowance = ₹300<br>• Total = ₹5,700 + tolls & parking (extra)</div>
+                </div>
                 <div class="fleet-badge">Perfect for families & groups</div>
             </div>
         </div>
     </div>
 </section>
 
+<!-- Booking Section – Correct Two‑Column Layout -->
 <section class="booking" id="booking">
     <div class="container">
         <div class="booking-wrapper">
+            <!-- LEFT COLUMN: Info Card -->
             <div class="booking-info">
                 <div class="info-card">
                     <h3><i class="fas fa-headset"></i> Why Book With Us?</h3>
-                    <ul><li><i class="fas fa-check-circle"></i> 24/7 Customer Support</li><li><i class="fas fa-check-circle"></i> Professional Drivers</li><li><i class="fas fa-check-circle"></i> Well-Maintained EECO Vans</li><li><i class="fas fa-check-circle"></i> On-Time Guarantee</li><li><i class="fas fa-check-circle"></i> Best Local Rates</li><li><i class="fas fa-check-circle"></i> Free Flight Tracking</li></ul>
-                    <div class="ceo-info"><img src="assets/images/ceo-hitendra.jpg" alt="Mr. Hitendra L. Dand, CEO" class="ceo-avatar" onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?background=1e3c5c&color=fff&name=Hitendra+Dand';"><div><strong>Mr. Hitendra L. Dand,</strong><small>CEO. Hitendra Tours & Travels</small></div></div>
-                            <div class="booking-form-container">
-                <div class="form-header"><h2>Book Your Ride</h2><p>Fill the details below. We'll get back to you within 20 minutes.</p></div>
+                    <ul>
+                        <li><i class="fas fa-check-circle"></i> 24/7 Customer Support</li>
+                        <li><i class="fas fa-check-circle"></i> Professional Drivers</li>
+                        <li><i class="fas fa-check-circle"></i> Well-Maintained EECO Vans</li>
+                        <li><i class="fas fa-check-circle"></i> On-Time Guarantee</li>
+                        <li><i class="fas fa-check-circle"></i> Best Local Rates</li>
+                        <li><i class="fas fa-check-circle"></i> Free Flight Tracking</li>
+                    </ul>
+                    <div class="ceo-info">
+                        <img src="assets/images/ceo-hitendra.jpg" alt="Mr. Hitendra L. Dand, CEO" class="ceo-avatar" onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?background=1e3c5c&color=fff&name=Hitendra+Dand';">
+                        <div>
+                            <strong>Mr. Hitendra L. Dand,</strong>
+                            <small>CEO, Hitendra Tours & Travels</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RIGHT COLUMN: Booking Form -->
+            <div class="booking-form-container">
+                <div class="form-header">
+                    <h2>Book Your Ride</h2>
+                    <p>Fill the details below. We'll get back to you within 20 minutes.</p>
+                </div>
                 <form id="bookingForm" class="booking-form">
                     <!-- Honeypot -->
                     <div style="display:none;"><label for="website">Website</label><input type="text" id="website" name="website" value=""></div>
+                    
                     <div class="form-group"><label><i class="fas fa-user"></i> Full Name *</label><input type="text" id="fullName" required placeholder="Enter your full name"></div>
                     <div class="form-row"><div class="form-group"><label><i class="fas fa-phone"></i> Phone Number *</label><input type="tel" id="phone" required placeholder="10-digit mobile number" pattern="[0-9]{10}"></div><div class="form-group"><label><i class="fas fa-envelope"></i> Email *</label><input type="email" id="email" required placeholder="your@email.com"></div></div>
                     <div class="form-group"><label><i class="fas fa-concierge-bell"></i> Service Type *</label><select id="serviceType" required><option value="">Select service</option><option value="Airport Travel">Airport Travel</option><option value="Station Travel">Station Travel</option><option value="Local Travel">Local Travel</option><option value="Outstation Travel">Outstation Travel</option><option value="Corporate Travel">Corporate Travel</option><option value="Wedding/Event Transfer">Wedding/Event Transfer</option><option value="Group Tour Package">Group Tour Package</option></select></div>
@@ -132,15 +149,12 @@
                     <div class="form-group"><label><i class="fas fa-info-circle"></i> Landmark / Special Instructions</label><textarea id="landmark" rows="2" placeholder="Gate/Terminal number, building name, any specific instructions for the driver..."></textarea></div>
                     <div class="form-row"><div class="form-group"><label><i class="fas fa-calendar"></i> Journey Date *</label><input type="date" id="journeyDate" required></div><div class="form-group"><label><i class="fas fa-clock"></i> Pickup Time *</label><input type="time" id="pickupTime" required></div></div>
                     
-                    <!-- Passengers dropdown (max 5) -->
                     <div class="form-row">
                         <div class="form-group">
                             <label><i class="fas fa-users"></i> Passengers *</label>
                             <select id="passengers" required>
-                                <option value="1">1 Passenger</option>
-                                <option value="2">2 Passengers</option>
-                                <option value="3">3 Passengers</option>
-                                <option value="4">4 Passengers</option>
+                                <option value="1">1 Passenger</option><option value="2">2 Passengers</option>
+                                <option value="3">3 Passengers</option><option value="4">4 Passengers</option>
                                 <option value="5">5 Passengers</option>
                             </select>
                             <small style="color: #e67e22;">Max 5 passengers (including driver seat). For 6+ please call 94483 01456.</small>
@@ -156,13 +170,9 @@
                         </div>
                     </div>
                     
-                    <!-- Email copy checkbox (clarified) -->
                     <div class="form-group checkbox-group">
-                        <label class="checkbox-label">
-                            <input type="checkbox" id="emailCopy"> 
-                            <span><i class="fas fa-envelope"></i> Email me a copy of this booking</span>
-                        </label>
-                        <small style="display: block; margin-top: 5px; font-size: 0.75rem; color: #666;">We'll send trip details to your email address.</small>
+                        <label class="checkbox-label"><input type="checkbox" id="emailCopy"> <span><i class="fas fa-envelope"></i> Email me a copy of this booking</span></label>
+                        <small>We'll send trip details to your email address.</small>
                     </div>
                     
                     <button type="submit" class="submit-btn" id="submitBtn"><span class="btn-text">Submit Booking</span><i class="fas fa-save"></i></button>
@@ -187,11 +197,7 @@
             <div class="feature"><i class="fas fa-clock"></i><h3>Punctuality</h3><p>Never late. Always on time for your journey.</p></div>
             <div class="feature"><i class="fas fa-shield-alt"></i><h3>Safe Travel</h3><p>Professional drivers, insured vehicles.</p></div>
             <div class="feature"><i class="fab fa-whatsapp"></i><h3>Instant Booking</h3><p>Confirm your ride in seconds on WhatsApp.</p></div>
-            <div class="feature">
-                <div class="rupee-symbol-small">₹</div>
-                <h3>Best Price</h3>
-                <p>Competitive rates with no hidden charges.</p>
-            </div>
+            <div class="feature"><div class="rupee-symbol-small">₹</div><h3>Best Price</h3><p>Competitive rates with no hidden charges.</p></div>
         </div>
     </div>
 </section>
@@ -199,10 +205,10 @@
 <footer class="footer">
     <div class="container">
         <div class="footer-content">
-            <div class="footer-brand"><h3>Hitendra Tours & Travels</h3><p>EECO Van Service | Since 2024</p><p class="commitment">Total Commitment to Service Excellence</p></div>
+            <div class="footer-brand"><h3>Hitendra Tours & Travels</h3><p>EECO Van Service | Since 2025</p><p class="commitment">Total Commitment to Service Excellence</p></div>
             <div class="footer-contact"><h4>Contact</h4><p><i class="fas fa-phone"></i> <a href="tel:+919448301456">94483 01456</a></p><p><i class="fab fa-whatsapp"></i> <a href="https://wa.me/919448301456" target="_blank">WhatsApp: 94483 01456</a></p><p><i class="far fa-envelope"></i> hitendratours@gmail.com</p></div>
             <div class="footer-hours"><h4>Service Hours</h4><p id="footerHours">Loading...</p></div>
-            <div class="footer-address"><h4>Address</h4><p><i class="fas fa-map-marker-alt"></i> Hitendra Tours & Travels,<br>Plot#138,Manoj Paradise,KDO Residency,B10 2nd Floor,<br>Keshwapur,Hubballi – 580023,<br>Karnataka, India</p></div>
+            <div class="footer-address"><h4>Address</h4><p><i class="fas fa-map-marker-alt"></i> Hitendra Tours & Travels,<br>Plot#138, Manoj Paradise, KDO Residency, B10 2nd Floor,<br>Keshwapur, Hubballi – 580023,<br>Karnataka, India</p></div>
         </div>
         <div class="footer-bottom"><p>&copy; 2026 Hitendra Tours & Travels. All rights reserved.</p></div>
     </div>
