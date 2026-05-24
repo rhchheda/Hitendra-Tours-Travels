@@ -78,7 +78,33 @@
 <section class="fleet">
     <div class="container">
         <h2 class="section-title">Our Fleet</h2>
-        <div class="fleet-card"><div class="fleet-image"><i class="fas fa-shuttle-van"></i></div><div class="fleet-details"><h3>EECO Van</h3><p><strong>Capacity:</strong> Spacious seating for 6-8 passengers + luggage</p><p><strong>Features:</strong> A/C, ample legroom, charging points, sanitized</p><p><strong>Starting Price:</strong> Local ₹14/km | Outstation ₹12/km</p><div class="fleet-badge">Perfect for families & groups</div></div></div>
+        <div class="fleet-card">
+            <div class="fleet-gallery">
+                <div class="gallery-item">
+                    <img src="assets/images/exterior.jpeg" alt="EECO Van Exterior Front" loading="lazy">
+                    <p class="image-caption">Exterior Front</p>
+                </div>
+                <div class="gallery-item">
+                    <img src="assets/images/exterior-1.jpeg" alt="EECO Van Exterior Side" loading="lazy">
+                    <p class="image-caption">Exterior Side</p>
+                </div>
+                <div class="gallery-item">
+                    <img src="assets/images/interior.jpeg" alt="Spacious Interior" loading="lazy">
+                    <p class="image-caption">Spacious Interior</p>
+                </div>
+                <div class="gallery-item">
+                    <img src="assets/images/interior-1.jpeg" alt="Comfortable Seating" loading="lazy">
+                    <p class="image-caption">Comfortable Seating</p>
+                </div>
+            </div>
+            <div class="fleet-details">
+                <h3>EECO Van</h3>
+                <p><strong>Capacity:</strong> Spacious seating for 6-8 passengers + luggage</p>
+                <p><strong>Features:</strong> A/C, ample legroom, charging points, sanitized</p>
+                <p><strong>Starting Price:</strong> Local ₹14/km | Outstation ₹12/km</p>
+                <div class="fleet-badge">Perfect for families & groups</div>
+            </div>
+        </div>
     </div>
 </section>
 
@@ -202,5 +228,11 @@
 </script>
 
 <script src="script.js"></script>
+<script>
+    document.querySelectorAll('.gallery-item img').forEach(img => {
+        img.style.cursor = 'pointer';
+        img.addEventListener('click', () => window.open(img.src, '_blank'));
+    });
+</script>
 </body>
 </html>
