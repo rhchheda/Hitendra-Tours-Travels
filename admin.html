@@ -61,29 +61,19 @@
         <div class="stats" id="stats"></div>
         <div class="filters">
             <input type="text" id="searchInput" placeholder="Search by name, phone, ID" onkeyup="filterTable()">
-            <select id="statusFilter" onchange="filterTable()">
-                <option value="">All Status</option>
-                <option value="Pending">Pending</option>
-                <option value="Quoted">Quoted</option>
-                <option value="Confirmed">Confirmed</option>
-                <option value="Completed">Completed</option>
-                <option value="Cancelled">Cancelled</option>
-            </select>
+            <select id="statusFilter" onchange="filterTable()"><option value="">All Status</option><option value="Pending">Pending</option><option value="Quoted">Quoted</option><option value="Confirmed">Confirmed</option><option value="Completed">Completed</option><option value="Cancelled">Cancelled</option></select>
             <button onclick="loadBookings()">Refresh</button>
         </div>
         <div class="bookings-table">
             <div id="tableLoader" class="loading">Loading bookings...</div>
             <table id="bookingsTable" style="display:none;">
-                <thead>
-                    <tr><th>ID</th><th>Date</th><th>Customer</th><th>Phone</th><th>Service</th><th>Trip</th><th>Pickup</th><th>Drop</th><th>Journey</th><th>Time</th><th>Status</th><th>Fare (₹)</th><th>Payment</th><th>Actions</th></tr>
-                </thead>
+                <thead><tr><th>ID</th><th>Date</th><th>Customer</th><th>Phone</th><th>Service</th><th>Trip</th><th>Pickup</th><th>Drop</th><th>Journey</th><th>Time</th><th>Status</th><th>Fare (₹)</th><th>Payment</th><th>Actions</th></tr></thead>
                 <tbody id="bookingsBody"></tbody>
             </table>
         </div>
     </div>
 </div>
 
-<!-- Change Password Modal -->
 <div id="changePwdModal" class="modal-overlay" style="display:none;">
     <div class="modal">
         <div class="modal-header"><h3>Change Admin Password</h3><button onclick="closeChangePwdModal()" style="background:none; border:none; color:white; font-size:20px;">&times;</button></div>
@@ -100,8 +90,7 @@
 <div id="toastContainer" class="toast-notify"></div>
 
 <script>
-    // ========== CONFIGURATION ==========
-    const GAS_URL = "https://script.google.com/macros/s/AKfycbwFls5uasexKXAPPkRrjJ6xwLML-yS0u5GnsHwr3YxOxItT6fg16JPR6XT7IL3Ui5t6/exec"; // REPLACE THIS
+    const GAS_URL = "https://script.google.com/macros/s/AKfycbwFls5uasexKXAPPkRrjJ6xwLML-yS0u5GnsHwr3YxOxItT6fg16JPR6XT7IL3Ui5t6/exec"; // REPLACE!
     let authToken = null;
     let allBookings = [];
 
@@ -110,6 +99,28 @@
         toast.textContent = message;
         toast.className = `toast-notify ${type} show`;
         setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+
+    function formatDateIST(dateStr) {
+        if (!dateStr) return '-';
+        try {
+            const d = new Date(dateStr);
+            if (isNaN(d.getTime())) return '-';
+            const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+            return `${d.getDate()}-${months[d.getMonth()]}-${d.getFullYear()}`;
+        } catch(e) { return '-'; }
+    }
+
+    function formatTimeIST(time24) {
+        if (!time24) return '-';
+        try {
+            let [hours, minutes] = time24.split(':');
+            hours = parseInt(hours);
+            const ampm = hours >= 12 ? 'PM' : 'AM';
+            let hour12 = hours % 12;
+            if (hour12 === 0) hour12 = 12;
+            return `${hour12}:${minutes} ${ampm}`;
+        } catch(e) { return '-'; }
     }
 
     function formatPhoneForWA(phone) {
@@ -190,16 +201,15 @@
         bookings.forEach(b => {
             const row = tbody.insertRow();
             row.insertCell(0).innerText = b.BookingID || '-';
-            const bookingDate = b.BookingDate ? new Date(b.BookingDate).toLocaleDateString() : '-';
-            row.insertCell(1).innerText = bookingDate;
+            row.insertCell(1).innerText = b.BookingDate ? formatDateIST(b.BookingDate) : '-';
             row.insertCell(2).innerText = b.CustomerName || '-';
             row.insertCell(3).innerText = b.Phone || '-';
             row.insertCell(4).innerText = b.Service || '-';
             row.insertCell(5).innerText = b.TripType || 'One Way';
             row.insertCell(6).innerText = b.Pickup || '-';
             row.insertCell(7).innerText = b.Drop || '-';
-            row.insertCell(8).innerText = b.JourneyDate || '-';
-            row.insertCell(9).innerText = b.PickupTime || '-';
+            row.insertCell(8).innerText = b.JourneyDate ? formatDateIST(b.JourneyDate) : '-';
+            row.insertCell(9).innerText = b.PickupTime ? formatTimeIST(b.PickupTime) : '-';
 
             const statusCell = row.insertCell(10);
             const statusSelect = document.createElement('select'); statusSelect.className = 'status-select';
