@@ -7,6 +7,8 @@ let CONFIG = {
 };
 const GAS_URL = "https://script.google.com/macros/s/AKfycbwFls5uasexKXAPPkRrjJ6xwLML-yS0u5GnsHwr3YxOxItT6fg16JPR6XT7IL3Ui5t6/exec"; // REPLACE WITH YOUR ACTUAL URL
 let formStartTime = Date.now();
+let isSubmitting = false;        // guards against double-submit (accidental double tap)
+let currentBookingId = null;     // generated once, reused on retries so duplicates share one ID
 
 // ==================== HELPER: Format Date in IST (DD-MMM-YYYY) ====================
 function formatDateIST(dateStr) {
@@ -140,7 +142,7 @@ function collectFormData() {
         }
     }
     return {
-        bookingId: generateBookingId(),
+        bookingId: currentBookingId,
         fullName: document.getElementById('fullName').value.trim(),
         phone: document.getElementById('phone').value.trim(),
         email: document.getElementById('email').value.trim(),
@@ -222,23 +224,48 @@ async function checkVehicleAvailability(date, time) {
 
 async function saveBookingToSheet(data) {
     try {
-        await fetch(GAS_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'saveBooking', data: data }) });
-        return { success: true };
+        // text/plain keeps this a "simple" request (no CORS preflight), and dropping
+        // no-cors lets us actually read the server's response (success / duplicate / error).
+        const res = await fetch(GAS_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify({ action: 'saveBooking', data: data })
+        });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const result = await res.json();
+        return { success: result.success !== false, duplicate: result.duplicate === true, error: result.error };
     } catch (e) { console.log(e); return { success: false }; }
 }
 
 async function handleFormSubmit(e) {
     e.preventDefault();
+    if (isSubmitting) return;                 // ignore a second tap while a submit is in flight
     if (!validateForm()) return;
-    let bookingData = collectFormData();
-    showToast('Checking vehicle availability...', 'success');
-    let avail = await checkVehicleAvailability(bookingData.journeyDate, bookingData.pickupTime);
-    if (!avail.available) { showNoVehiclesModal(avail.message); return; }
-    showToast('Saving your booking...', 'success');
-    let saved = await saveBookingToSheet(bookingData);
-    if (!saved.success) { showToast('Failed to save booking. Please try again.', 'error'); return; }
-    window.currentBookingData = bookingData;
-    showPostSubmitModal(bookingData);
+
+    isSubmitting = true;
+    const btn = document.getElementById('submitBtn');
+    const orig = btn ? btn.innerHTML : '';
+    if (btn) { btn.disabled = true; btn.innerHTML = '<span class="btn-text">Submitting…</span>'; }
+
+    // Generate the booking ID once and reuse it. If saving fails and the user retries,
+    // the same ID is sent — so any server-side dedupe can recognise the repeat.
+    if (!currentBookingId) currentBookingId = generateBookingId();
+
+    try {
+        let bookingData = collectFormData();
+        showToast('Checking vehicle availability...', 'success');
+        let avail = await checkVehicleAvailability(bookingData.journeyDate, bookingData.pickupTime);
+        if (!avail.available) { showNoVehiclesModal(avail.message); return; }
+        showToast('Saving your booking...', 'success');
+        let saved = await saveBookingToSheet(bookingData);
+        if (!saved.success) { showToast('Failed to save booking. Please try again.', 'error'); return; }
+        window.currentBookingData = bookingData;
+        showPostSubmitModal(bookingData);
+        currentBookingId = null;              // booking succeeded; next booking gets a fresh ID
+    } finally {
+        isSubmitting = false;
+        if (btn) { btn.disabled = false; btn.innerHTML = orig; }
+    }
 }
 
 function showNoVehiclesModal(msg) {
