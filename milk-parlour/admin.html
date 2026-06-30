@@ -1,0 +1,1083 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin — Manish Milk Parlour</title>
+<link rel="stylesheet" href="milk-style.css">
+<style>
+  .admin-login-wrap { max-width: 400px; margin: 60px auto; padding: 0 16px; }
+  #appShell { display: none; }
+  .action-bar { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; align-items: center; }
+  .action-bar .spacer { flex: 1; }
+  .bill-row-sent td { opacity: 0.65; }
+  .inline-form { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  @media (max-width: 600px) { .inline-form { grid-template-columns: 1fr; } }
+  .config-key { font-family: monospace; font-size: 13px; color: var(--primary); }
+  .config-val .mp-input { font-size: 13px; padding: 7px 10px; }
+  .price-qty { width: 90px; }
+  .tab-content { animation: fadeIn 0.2s ease; }
+  @keyframes fadeIn { from { opacity:0; transform:translateY(4px); } to { opacity:1; transform:none; } }
+  #dryBanner { background:#fff3cd; border-bottom:2px solid #ffc107; color:#856404; padding:8px 16px; font-size:13px; font-weight:600; text-align:center; }
+</style>
+</head>
+<body>
+
+<!-- Login -->
+<div id="loginShell">
+  <div class="mp-topbar"><a href="index.html" class="logo"><span>🥛</span> Manish Milk Parlour</a></div>
+  <div class="admin-login-wrap">
+    <div class="mp-login-box">
+      <div class="login-logo">⚙️</div>
+      <h2>Admin Login</h2>
+      <p class="login-sub">Enter admin password to continue</p>
+      <div class="mp-form-group" style="text-align:left;">
+        <label class="mp-label">🔒 Password</label>
+        <div style="position:relative;">
+          <input class="mp-input" type="password" id="adminPwd" placeholder="Admin password" style="padding-right:44px;" autocomplete="current-password">
+          <button type="button" onclick="togglePwd()" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:18px;" id="eyeBtn">👁️</button>
+        </div>
+      </div>
+      <div id="loginErr" class="mp-alert mp-alert-danger" style="display:none;"></div>
+      <button class="mp-btn mp-btn-primary mp-btn-lg" id="loginBtn" onclick="doAdminLogin()">Login</button>
+      <hr style="margin:20px 0;border:none;border-top:1px solid var(--border);">
+      <a href="index.html" style="font-size:13px;color:var(--primary);">← Back to Home</a>
+    </div>
+  </div>
+</div>
+
+<!-- App Shell -->
+<div id="appShell">
+  <div class="mp-topbar">
+    <a href="index.html" class="logo"><span>🥛</span> Milk Parlour Admin</a>
+    <div style="display:flex;align-items:center;gap:8px;">
+      <span class="user-chip">⚙️ Admin</span>
+      <button onclick="adminLogout()" class="mp-btn mp-btn-sm" style="background:rgba(255,255,255,0.15);color:#fff;border:none;">Logout</button>
+    </div>
+  </div>
+  <div id="dryBanner" style="display:none;">🧪 DRY RUN MODE — Emails/WhatsApp go to admin only</div>
+
+  <div class="mp-container" style="max-width:1200px;">
+    <div class="mp-tabs" id="mainTabs">
+      <button class="mp-tab active" onclick="showTab('dashboard')">📊 Dashboard</button>
+      <button class="mp-tab" onclick="showTab('customers')">👥 Customers</button>
+      <button class="mp-tab" onclick="showTab('delivery')">🛵 Delivery</button>
+      <button class="mp-tab" onclick="showTab('prices')">💰 Prices</button>
+      <button class="mp-tab" onclick="showTab('bills')">📄 Bills</button>
+      <button class="mp-tab" onclick="showTab('registrations')">📋 Registrations <span class="mp-badge mp-badge-danger" id="regBadge" style="display:none;margin-left:4px;font-size:11px;"></span></button>
+      <button class="mp-tab" onclick="showTab('settings')">⚙️ Settings</button>
+    </div>
+
+    <!-- DASHBOARD -->
+    <div class="mp-tab-panel active tab-content" id="tab-dashboard">
+      <div class="mp-stats" id="dashStats">
+        <div class="mp-stat"><div class="value" id="ds-total">—</div><div class="label">Total Customers</div></div>
+        <div class="mp-stat success"><div class="value" id="ds-active">—</div><div class="label">Active</div></div>
+        <div class="mp-stat accent"><div class="value" id="ds-today">—</div><div class="label">Delivered Today</div></div>
+        <div class="mp-stat danger"><div class="value" id="ds-missed">—</div><div class="label">Missed Today</div></div>
+        <div class="mp-stat"><div class="value" id="ds-mdeliveries">—</div><div class="label">Month Deliveries</div></div>
+        <div class="mp-stat success"><div class="value" id="ds-mltrs">—</div><div class="label">Month Milk (L)</div></div>
+        <div class="mp-stat accent"><div class="value" id="ds-mbill">—</div><div class="label">Month Revenue</div></div>
+        <div class="mp-stat warning"><div class="value" id="ds-pending">—</div><div class="label">Unsent Bills</div></div>
+        <div class="mp-stat danger"><div class="value" id="ds-regs">—</div><div class="label">New Registrations</div></div>
+      </div>
+      <div class="mp-card">
+        <div class="mp-card-title">⚡ Quick Actions</div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+          <button class="mp-btn mp-btn-primary" onclick="showTab('customers');loadCustomers()">➕ Add Customer</button>
+          <button class="mp-btn mp-btn-accent"  onclick="showTab('bills');generateBillsNow()">📋 Generate Bills</button>
+          <button class="mp-btn mp-btn-success" onclick="showTab('bills');loadBills()">📤 Send Bills</button>
+          <button class="mp-btn mp-btn-outline" onclick="showTab('registrations');loadRegistrations()">📋 Registrations</button>
+          <button class="mp-btn mp-btn-outline" onclick="loadDashboard()">🔄 Refresh</button>
+        </div>
+      </div>
+
+      <!-- EOD Order Report -->
+      <div class="mp-card">
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:14px;">
+          <div>
+            <div class="mp-card-title" style="margin:0;">🛒 Tomorrow's Wholesale Order</div>
+            <div style="font-size:12px;color:var(--text-muted);margin-top:2px;" id="eodStatus"></div>
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <button class="mp-btn mp-btn-outline mp-btn-sm" onclick="loadEODSummary()">🔄 Refresh</button>
+            <button class="mp-btn mp-btn-success mp-btn-sm" id="eodSendBtn" onclick="sendEODReport()">📲 WhatsApp to Wholesaler</button>
+          </div>
+        </div>
+        <div id="eodBody"><div class="mp-empty" style="padding:8px 0;"><span class="empty-icon">⏳</span><p>Loading order summary…</p></div></div>
+      </div>
+    </div>
+
+    <!-- CUSTOMERS -->
+    <div class="mp-tab-panel tab-content" id="tab-customers">
+      <div class="action-bar">
+        <div class="mp-search-wrap" style="flex:1;max-width:300px;">
+          <input class="mp-input" type="text" id="custSearch" placeholder="Search customers…" oninput="filterCustomers()">
+        </div>
+        <div class="spacer"></div>
+        <button class="mp-btn mp-btn-primary" onclick="openAddCustomer()">➕ Add Customer</button>
+        <button class="mp-btn mp-btn-outline" onclick="loadCustomers()">🔄 Refresh</button>
+      </div>
+      <div id="customerTable"><div class="mp-empty"><span class="empty-icon">⏳</span><p>Loading…</p></div></div>
+    </div>
+
+    <!-- DELIVERY PERSONS -->
+    <div class="mp-tab-panel tab-content" id="tab-delivery">
+      <div class="action-bar">
+        <div class="spacer"></div>
+        <button class="mp-btn mp-btn-accent" onclick="openAddPerson()">➕ Add Delivery Person</button>
+        <button class="mp-btn mp-btn-outline" onclick="loadPersons()">🔄 Refresh</button>
+      </div>
+      <div id="personTable"><div class="mp-empty"><span class="empty-icon">⏳</span><p>Loading…</p></div></div>
+    </div>
+
+    <!-- PRICES -->
+    <div class="mp-tab-panel tab-content" id="tab-prices">
+      <div class="action-bar">
+        <div class="spacer"></div>
+        <button class="mp-btn mp-btn-primary" onclick="openAddPrice()">➕ Add Price</button>
+        <button class="mp-btn mp-btn-outline" onclick="loadPrices()">🔄 Refresh</button>
+      </div>
+      <div class="mp-alert mp-alert-info">Prices apply to all customers. Changes take effect on the next bill generation.</div>
+      <div id="priceTable"><div class="mp-empty"><span class="empty-icon">⏳</span><p>Loading…</p></div></div>
+    </div>
+
+    <!-- BILLS -->
+    <div class="mp-tab-panel tab-content" id="tab-bills">
+      <div class="action-bar">
+        <select class="mp-select" id="billMonth" style="width:auto;" onchange="loadBills()">
+          <option value="">— Month —</option>
+        </select>
+        <select class="mp-select" id="billYear" style="width:auto;" onchange="loadBills()">
+          <option value="">— Year —</option>
+        </select>
+        <div class="spacer"></div>
+        <button class="mp-btn mp-btn-primary" onclick="generateBillsNow()">📋 Generate Bills</button>
+        <button class="mp-btn mp-btn-success" onclick="sendAllBills()">📤 Send All Bills</button>
+        <button class="mp-btn mp-btn-outline" onclick="loadBills()">🔄 Refresh</button>
+      </div>
+      <div id="billTable"><div class="mp-empty"><span class="empty-icon">📄</span><p>Select month and year to view bills.</p></div></div>
+    </div>
+
+    <!-- REGISTRATIONS -->
+    <div class="mp-tab-panel tab-content" id="tab-registrations">
+      <div class="action-bar">
+        <div class="spacer"></div>
+        <button class="mp-btn mp-btn-outline" onclick="loadRegistrations()">🔄 Refresh</button>
+      </div>
+      <div class="mp-alert mp-alert-info">Customers who submitted a delivery request from the registration form. Approve to create their account and send login PIN.</div>
+      <div id="registrationTable"><div class="mp-empty"><span class="empty-icon">⏳</span><p>Loading…</p></div></div>
+    </div>
+
+    <!-- SETTINGS -->
+    <div class="mp-tab-panel tab-content" id="tab-settings">
+      <div class="mp-card">
+        <div class="mp-card-title">⚙️ System Settings</div>
+        <div class="mp-alert mp-alert-warning" style="margin-bottom:16px;">Settings are saved to Google Sheet Config tab. Reload page to see latest values.</div>
+        <div id="configForm"><div class="mp-empty"><span class="empty-icon">⏳</span><p>Loading settings…</p></div></div>
+        <div style="margin-top:16px;">
+          <button class="mp-btn mp-btn-primary" onclick="saveConfig()">💾 Save Settings</button>
+        </div>
+      </div>
+      <div class="mp-card">
+        <div class="mp-card-title">🔒 Change Admin Password</div>
+        <div class="inline-form">
+          <div class="mp-form-group">
+            <label class="mp-label">Current Password</label>
+            <input class="mp-input" type="password" id="curPwd">
+          </div>
+          <div class="mp-form-group">
+            <label class="mp-label">New Password</label>
+            <input class="mp-input" type="password" id="newPwd">
+          </div>
+        </div>
+        <button class="mp-btn mp-btn-outline" onclick="changePassword()">Update Password</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Add/Edit Customer Modal -->
+<div class="mp-modal-overlay" id="custModal">
+  <div class="mp-modal">
+    <button class="mp-modal-close" onclick="closeCustModal()">✕</button>
+    <div class="mp-modal-title" id="custModalTitle">Add Customer</div>
+    <input type="hidden" id="editCustId">
+    <div class="inline-form">
+      <div class="mp-form-group">
+        <label class="mp-label">Full Name *</label>
+        <input class="mp-input" id="cName" placeholder="Customer name">
+      </div>
+      <div class="mp-form-group">
+        <label class="mp-label">Mobile *</label>
+        <input class="mp-input" id="cPhone" placeholder="10-digit number" type="tel" maxlength="10">
+      </div>
+      <div class="mp-form-group">
+        <label class="mp-label">Email <span style="font-weight:400;color:var(--text-muted);">(for PIN)</span></label>
+        <input class="mp-input" id="cEmail" placeholder="customer@email.com" type="email">
+      </div>
+      <div class="mp-form-group">
+        <label class="mp-label">Shift</label>
+        <select class="mp-select" id="cShift">
+          <option>Morning</option><option>Evening</option><option>Morning+Evening</option>
+        </select>
+      </div>
+    </div>
+    <div class="mp-form-group">
+      <label class="mp-label">Address / Flat No.</label>
+      <input class="mp-input" id="cAddress" placeholder="Building, flat, area">
+    </div>
+    <div class="inline-form">
+      <div class="mp-form-group">
+        <label class="mp-label">Default Brand</label>
+        <select class="mp-select" id="cBrand"></select>
+      </div>
+      <div class="mp-form-group">
+        <label class="mp-label">Default Quality</label>
+        <select class="mp-select" id="cQuality"></select>
+      </div>
+      <div class="mp-form-group">
+        <label class="mp-label">Milk Qty (Ltrs/day)</label>
+        <input class="mp-input" id="cMilkQty" type="number" value="1" min="0" step="0.5">
+      </div>
+      <div class="mp-form-group">
+        <label class="mp-label">Curd Qty (Ltrs/day)</label>
+        <input class="mp-input" id="cCurdQty" type="number" value="0" min="0" step="0.25">
+      </div>
+    </div>
+    <div class="mp-form-group">
+      <label class="mp-label">Notes</label>
+      <input class="mp-input" id="cNotes" placeholder="Any notes…">
+    </div>
+    <div id="custModalErr" class="mp-alert mp-alert-danger" style="display:none;"></div>
+    <button class="mp-btn mp-btn-primary mp-btn-lg" id="custSaveBtn" onclick="saveCustomer()">Save Customer</button>
+  </div>
+</div>
+
+<!-- Add Delivery Person Modal -->
+<div class="mp-modal-overlay" id="personModal">
+  <div class="mp-modal">
+    <button class="mp-modal-close" onclick="document.getElementById('personModal').classList.remove('open')">✕</button>
+    <div class="mp-modal-title" id="personModalTitle">Add Delivery Person</div>
+    <input type="hidden" id="editPersonId">
+    <div class="inline-form">
+      <div class="mp-form-group">
+        <label class="mp-label">Full Name *</label>
+        <input class="mp-input" id="pName" placeholder="Delivery person name">
+      </div>
+      <div class="mp-form-group">
+        <label class="mp-label">Mobile *</label>
+        <input class="mp-input" id="pPhone" placeholder="10-digit number" type="tel" maxlength="10">
+      </div>
+      <div class="mp-form-group">
+        <label class="mp-label">Password *</label>
+        <input class="mp-input" id="pPassword" placeholder="Set a password" type="text">
+      </div>
+      <div class="mp-form-group">
+        <label class="mp-label">Route Sequence</label>
+        <input class="mp-input" id="pSequence" placeholder="e.g. A-Block first">
+      </div>
+    </div>
+    <div id="personModalResult" class="mp-alert mp-alert-success" style="display:none;"></div>
+    <button class="mp-btn mp-btn-accent mp-btn-lg" id="personSaveBtn" onclick="savePerson()">Save</button>
+  </div>
+</div>
+
+<!-- Add Price Modal -->
+<div class="mp-modal-overlay" id="priceModal">
+  <div class="mp-modal">
+    <button class="mp-modal-close" onclick="document.getElementById('priceModal').classList.remove('open')">✕</button>
+    <div class="mp-modal-title">Add / Update Price</div>
+    <div class="mp-form-group"><label class="mp-label">Brand</label><input class="mp-input" id="priceBrand" placeholder="e.g. Amul"></div>
+    <div class="mp-form-group"><label class="mp-label">Quality / Variant</label><input class="mp-input" id="priceQuality" placeholder="e.g. Gold"></div>
+    <div class="mp-form-group"><label class="mp-label">Price per Litre (₹)</label><input class="mp-input" id="priceAmount" type="number" placeholder="e.g. 68"></div>
+    <button class="mp-btn mp-btn-primary mp-btn-lg" onclick="savePrice()">Save Price</button>
+  </div>
+</div>
+
+<!-- Record Payment Modal -->
+<div class="mp-modal-overlay" id="paymentModal">
+  <div class="mp-modal">
+    <button class="mp-modal-close" onclick="document.getElementById('paymentModal').classList.remove('open')">✕</button>
+    <div class="mp-modal-title">💰 Record Payment</div>
+    <input type="hidden" id="payBillId">
+    <input type="hidden" id="payCustomerId">
+    <div style="background:var(--primary-light);border-radius:8px;padding:12px 14px;margin-bottom:16px;">
+      <div style="font-size:15px;font-weight:700;color:var(--primary);" id="payCustomerName">—</div>
+      <div style="font-size:13px;color:var(--text-muted);" id="payBillPeriod">—</div>
+    </div>
+    <div class="inline-form">
+      <div class="mp-form-group">
+        <label class="mp-label">Amount Received (₹) *</label>
+        <input class="mp-input" type="number" id="payAmount" placeholder="e.g. 1240" min="0" step="1">
+      </div>
+      <div class="mp-form-group">
+        <label class="mp-label">Payment Method *</label>
+        <select class="mp-select" id="payMethod">
+          <option value="Cash">💵 Cash</option>
+          <option value="UPI / GPay">📱 UPI / GPay</option>
+          <option value="PhonePe">📱 PhonePe</option>
+          <option value="Paytm">📱 Paytm</option>
+          <option value="NEFT / IMPS">🏦 NEFT / IMPS</option>
+          <option value="Cheque">📝 Cheque</option>
+          <option value="Other">Other</option>
+        </select>
+      </div>
+    </div>
+    <div class="mp-form-group">
+      <label class="mp-label">Transaction Reference / Cheque No. <span style="font-weight:400;color:var(--text-muted);">optional</span></label>
+      <input class="mp-input" id="payRef" placeholder="UPI ref, cheque number, etc.">
+    </div>
+    <div class="mp-alert mp-alert-info" style="font-size:13px;">
+      ✉️ A payment receipt will be auto-sent to the customer by email and WhatsApp after saving.
+    </div>
+    <button class="mp-btn mp-btn-success mp-btn-lg" id="paySaveBtn" onclick="savePayment()" style="width:100%;">✅ Confirm & Send Receipt</button>
+  </div>
+</div>
+
+<!-- Reject Registration Modal -->
+<div class="mp-modal-overlay" id="rejectModal">
+  <div class="mp-modal">
+    <button class="mp-modal-close" onclick="document.getElementById('rejectModal').classList.remove('open')">✕</button>
+    <div class="mp-modal-title">❌ Reject Registration</div>
+    <input type="hidden" id="rejectRegId">
+    <p style="font-size:14px;color:var(--text-muted);margin-bottom:16px;">Provide a reason — it will be included in the polite email sent to the applicant.</p>
+    <div class="mp-form-group">
+      <label class="mp-label">Reason for rejection</label>
+      <select class="mp-select" id="rejectReason" onchange="updateRejectReason()">
+        <option value="Address is outside our current delivery area.">Outside delivery area</option>
+        <option value="Delivery route not available for your location at this time.">Route not available</option>
+        <option value="We are unable to accommodate new customers at this time due to capacity constraints.">Capacity full</option>
+        <option value="custom">Custom reason…</option>
+      </select>
+    </div>
+    <div class="mp-form-group" id="customReasonWrap" style="display:none;">
+      <label class="mp-label">Custom Reason</label>
+      <textarea class="mp-input" id="customReason" rows="2" placeholder="Enter reason to send to applicant"></textarea>
+    </div>
+    <button class="mp-btn mp-btn-danger mp-btn-lg" onclick="confirmReject()" style="width:100%;">Send Rejection Email</button>
+  </div>
+</div>
+
+<script src="milk-app.js"></script>
+<script>
+let adminToken = null;
+let allCustomers = [];
+let allPrices = [];
+let brandQualityMap = {};
+const now = new Date();
+let billViewMonth = now.getMonth() + 1;
+let billViewYear  = now.getFullYear();
+
+// ===== AUTH =====
+function togglePwd() {
+  const i = document.getElementById('adminPwd');
+  i.type = i.type === 'password' ? 'text' : 'password';
+  document.getElementById('eyeBtn').textContent = i.type === 'password' ? '👁️' : '🙈';
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && !adminToken) doAdminLogin();
+});
+
+async function doAdminLogin() {
+  const pwd = document.getElementById('adminPwd').value;
+  const err = document.getElementById('loginErr');
+  err.style.display = 'none';
+  if (!pwd) { err.textContent = 'Enter password.'; err.style.display = 'flex'; return; }
+  const btn = document.getElementById('loginBtn');
+  setLoading(btn, true);
+  try {
+    const res = await apiGet({ action: 'adminLogin', password: pwd });
+    if (res.success) {
+      adminToken = res.token;
+      saveSession('mp_admin', { token: adminToken });
+      showApp();
+    } else {
+      err.textContent = res.error || 'Invalid password.';
+      err.style.display = 'flex';
+      setLoading(btn, false);
+    }
+  } catch (_) { err.textContent = 'Network error.'; err.style.display = 'flex'; setLoading(btn, false); }
+}
+
+function showApp() {
+  document.getElementById('loginShell').style.display = 'none';
+  document.getElementById('appShell').style.display = 'block';
+  apiGet({ action: 'getConfig' }).then(cfg => {
+    if (cfg.dryRunMode) document.getElementById('dryBanner').style.display = 'block';
+  });
+  loadDashboard();
+  loadEODSummary();
+  loadPrices();
+  initBillMonthSelects();
+}
+
+function adminLogout() { clearSession('mp_admin'); location.reload(); }
+
+// Check existing session
+const existSess = getSession('mp_admin');
+if (existSess) { adminToken = existSess.token; showApp(); }
+
+// ===== TABS =====
+function showTab(id) {
+  document.querySelectorAll('.mp-tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.mp-tab').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + id).classList.add('active');
+  const tabs = ['dashboard','customers','delivery','prices','bills','registrations','settings'];
+  const idx = tabs.indexOf(id);
+  if (idx >= 0) document.querySelectorAll('.mp-tab')[idx].classList.add('active');
+  if (id === 'customers')      loadCustomers();
+  if (id === 'delivery')       loadPersons();
+  if (id === 'prices')         loadPrices();
+  if (id === 'bills')          loadBills();
+  if (id === 'registrations')  loadRegistrations();
+  if (id === 'settings')       loadConfig();
+}
+
+// ===== DASHBOARD =====
+async function loadDashboard() {
+  try {
+    const res = await apiGet({ action: 'getAdminDashboard', token: adminToken });
+    if (!res.success) { if (res.error === 'Unauthorised') adminLogout(); return; }
+    const s = res.stats;
+    document.getElementById('ds-total').textContent     = s.totalCustomers;
+    document.getElementById('ds-active').textContent    = s.activeCustomers;
+    document.getElementById('ds-today').textContent     = s.todayDeliveries;
+    document.getElementById('ds-missed').textContent    = s.todayMissed;
+    document.getElementById('ds-mdeliveries').textContent = s.monthDeliveries;
+    document.getElementById('ds-mltrs').textContent     = s.monthMilkLtrs;
+    document.getElementById('ds-mbill').textContent     = '₹' + s.monthBillTotal.toLocaleString('en-IN');
+    document.getElementById('ds-pending').textContent   = s.pendingBills;
+    const regs = s.pendingRegs || 0;
+    document.getElementById('ds-regs').textContent = regs;
+    const badge = document.getElementById('regBadge');
+    if (regs > 0) { badge.textContent = regs; badge.style.display = 'inline-flex'; }
+    else badge.style.display = 'none';
+  } catch (_) {}
+}
+
+// ===== CUSTOMERS =====
+async function loadCustomers() {
+  document.getElementById('customerTable').innerHTML = '<div class="mp-empty"><span class="empty-icon">⏳</span><p>Loading…</p></div>';
+  try {
+    const res = await apiGet({ action: 'getCustomers', token: adminToken });
+    if (!res.success) return;
+    allCustomers = res.customers;
+    renderCustomers(allCustomers);
+  } catch (_) {}
+}
+
+function filterCustomers() {
+  const q = document.getElementById('custSearch').value.toLowerCase();
+  renderCustomers(allCustomers.filter(c =>
+    c.Name?.toLowerCase().includes(q) || c.Phone?.includes(q) || c.Address?.toLowerCase().includes(q)
+  ));
+}
+
+function renderCustomers(list) {
+  if (!list.length) { document.getElementById('customerTable').innerHTML = '<div class="mp-empty"><span class="empty-icon">👥</span><p>No customers found.</p></div>'; return; }
+  let html = `<div class="mp-table-wrap"><table class="mp-table">
+    <thead><tr><th>#</th><th>Name</th><th>Phone</th><th>Address</th><th>Brand/Qty</th><th>Shift</th><th>Status</th><th>Actions</th></tr></thead><tbody>`;
+  list.forEach((c, i) => {
+    const active = c.Active === 'TRUE';
+    html += `<tr>
+      <td>${i+1}</td>
+      <td><strong>${c.Name}</strong><br><span style="font-size:11px;color:var(--text-muted);">${c.CustomerID}</span></td>
+      <td>${c.Phone}</td>
+      <td style="font-size:13px;">${c.Address || '—'}</td>
+      <td style="font-size:13px;">${c.DefaultBrand} ${c.DefaultQuality}<br><span style="color:var(--text-muted);">${c.DefaultMilkQty}L milk${c.DefaultCurdQty > 0 ? ' · ' + c.DefaultCurdQty + 'L curd' : ''}</span></td>
+      <td>${c.Shift || '—'}</td>
+      <td><span class="mp-badge mp-badge-${active ? 'success' : 'muted'}">${active ? 'Active' : 'Inactive'}</span></td>
+      <td style="white-space:nowrap;">
+        <button class="mp-btn mp-btn-outline mp-btn-sm" onclick="editCustomer('${c.CustomerID}')">✏️</button>
+        <button class="mp-btn mp-btn-primary mp-btn-sm" onclick="sendCreds('${c.CustomerID}','${c.Name.replace(/'/g,"\\'")}')">📧 PIN</button>
+        <button class="mp-btn mp-btn-sm" style="background:#e9ecef;" onclick="toggleActive('${c.CustomerID}','${active}')">${active ? '🚫' : '✅'}</button>
+      </td>
+    </tr>`;
+  });
+  html += '</tbody></table></div>';
+  document.getElementById('customerTable').innerHTML = html;
+}
+
+function openAddCustomer() {
+  document.getElementById('custModalTitle').textContent = '➕ Add Customer';
+  document.getElementById('editCustId').value = '';
+  ['cName','cPhone','cEmail','cAddress','cNotes'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('cMilkQty').value = 1;
+  document.getElementById('cCurdQty').value = 0;
+  document.getElementById('cShift').value = 'Morning';
+  populateBrandDropdown('cBrand', 'cQuality', 'Amul', 'Gold');
+  document.getElementById('custModalErr').style.display = 'none';
+  document.getElementById('custModal').classList.add('open');
+}
+
+function editCustomer(custId) {
+  const c = allCustomers.find(x => x.CustomerID === custId);
+  if (!c) return;
+  document.getElementById('custModalTitle').textContent = '✏️ Edit Customer';
+  document.getElementById('editCustId').value  = custId;
+  document.getElementById('cName').value       = c.Name || '';
+  document.getElementById('cPhone').value      = c.Phone || '';
+  document.getElementById('cEmail').value      = c.Email || '';
+  document.getElementById('cAddress').value    = c.Address || '';
+  document.getElementById('cShift').value      = c.Shift || 'Morning';
+  document.getElementById('cMilkQty').value   = c.DefaultMilkQty || 1;
+  document.getElementById('cCurdQty').value   = c.DefaultCurdQty || 0;
+  document.getElementById('cNotes').value      = c.Notes || '';
+  populateBrandDropdown('cBrand', 'cQuality', c.DefaultBrand, c.DefaultQuality);
+  document.getElementById('custModalErr').style.display = 'none';
+  document.getElementById('custModal').classList.add('open');
+}
+
+function populateBrandDropdown(brandId, qualId, selectedBrand, selectedQuality) {
+  const brandSel = document.getElementById(brandId);
+  const qualSel  = document.getElementById(qualId);
+  const brands = Object.keys(brandQualityMap).length ? Object.keys(brandQualityMap) : ['Amul','Nandini','Kolhapur','Mother Dairy','Aditya'];
+  brandSel.innerHTML = brands.map(b => `<option${b===selectedBrand?' selected':''}>${b}</option>`).join('');
+  const fillQual = (brand) => {
+    const quals = brandQualityMap[brand] || ['Gold','Taza','Regular','Toned'];
+    qualSel.innerHTML = quals.map(q => `<option${q===selectedQuality?' selected':''}>${q}</option>`).join('');
+  };
+  fillQual(selectedBrand || brands[0]);
+  brandSel.onchange = () => fillQual(brandSel.value);
+}
+
+async function saveCustomer() {
+  const id   = document.getElementById('editCustId').value;
+  const name = document.getElementById('cName').value.trim();
+  const phone= document.getElementById('cPhone').value.trim();
+  const err  = document.getElementById('custModalErr');
+  err.style.display = 'none';
+  if (!name) { err.textContent = 'Name is required.'; err.style.display = 'flex'; return; }
+  if (!/^\d{10}$/.test(phone)) { err.textContent = 'Enter a valid 10-digit mobile number.'; err.style.display = 'flex'; return; }
+
+  const data = {
+    customerId: id, name, phone,
+    email:          document.getElementById('cEmail').value.trim(),
+    address:        document.getElementById('cAddress').value.trim(),
+    shift:          document.getElementById('cShift').value,
+    defaultBrand:   document.getElementById('cBrand').value,
+    defaultQuality: document.getElementById('cQuality').value,
+    defaultMilkQty: parseFloat(document.getElementById('cMilkQty').value) || 1,
+    defaultCurdQty: parseFloat(document.getElementById('cCurdQty').value) || 0,
+    notes:          document.getElementById('cNotes').value.trim()
+  };
+
+  const btn = document.getElementById('custSaveBtn');
+  setLoading(btn, true);
+  try {
+    const action = id ? 'updateCustomer' : 'addCustomer';
+    const res = await apiPost(action, data, adminToken);
+    if (res.success) {
+      closeCustModal();
+      loadCustomers();
+      const msg = id ? 'Customer updated.' : `Customer added.${res.pin ? ' PIN: ' + res.pin : ''}${res.pinSent ? ' Sent by email.' : ' No email — share PIN manually.'}`;
+      showToast(msg, 'success', 5000);
+    } else {
+      err.textContent = res.error || 'Failed to save.';
+      err.style.display = 'flex';
+      setLoading(btn, false);
+    }
+  } catch (_) { err.textContent = 'Network error.'; err.style.display = 'flex'; setLoading(btn, false); }
+}
+
+function closeCustModal() { document.getElementById('custModal').classList.remove('open'); }
+
+async function sendCreds(custId, name) {
+  if (!confirm(`Send new PIN to ${name}?`)) return;
+  try {
+    const res = await apiPost('sendCredentials', { customerId: custId }, adminToken);
+    showToast(res.success ? (res.pinSent ? `PIN sent to ${name}'s email.` : `New PIN: ${res.pin} — No email on record.`) : (res.error || 'Failed.'),
+              res.success ? 'success' : 'error', 5000);
+  } catch (_) { showToast('Network error.', 'error'); }
+}
+
+async function toggleActive(custId, isActive) {
+  const active = isActive === 'true' ? false : true;
+  try {
+    const res = await apiPost('updateCustomer', { customerId: custId, active }, adminToken);
+    if (res.success) { loadCustomers(); showToast(active ? 'Customer activated.' : 'Customer deactivated.', 'info'); }
+  } catch (_) {}
+}
+
+// ===== DELIVERY PERSONS =====
+async function loadPersons() {
+  document.getElementById('personTable').innerHTML = '<div class="mp-empty"><span class="empty-icon">⏳</span><p>Loading…</p></div>';
+  try {
+    const res = await apiGet({ action: 'getDeliveryPersons', token: adminToken });
+    if (!res.success) return;
+    if (!res.persons.length) { document.getElementById('personTable').innerHTML = '<div class="mp-empty"><span class="empty-icon">🛵</span><p>No delivery persons added yet.</p></div>'; return; }
+    let html = `<div class="mp-table-wrap"><table class="mp-table">
+      <thead><tr><th>ID</th><th>Name</th><th>Phone</th><th>Sequence</th><th>Status</th><th>Actions</th></tr></thead><tbody>`;
+    res.persons.forEach(p => {
+      const active = p.Active === 'TRUE';
+      html += `<tr>
+        <td><code>${p.PersonID}</code></td>
+        <td><strong>${p.Name}</strong></td>
+        <td>${p.Phone}</td>
+        <td style="font-size:13px;">${p.Route_Sequence || '—'}</td>
+        <td><span class="mp-badge mp-badge-${active ? 'success' : 'muted'}">${active ? 'Active' : 'Inactive'}</span></td>
+        <td style="white-space:nowrap;">
+          <button class="mp-btn mp-btn-outline mp-btn-sm" onclick="resetPersonPwd('${p.PersonID}','${p.Name.replace(/'/g,"\\'")}')">🔑 Reset Pwd</button>
+          <button class="mp-btn mp-btn-sm" style="background:#e9ecef;" onclick="togglePerson('${p.PersonID}','${active}')">${active ? '🚫' : '✅'}</button>
+        </td>
+      </tr>`;
+    });
+    html += '</tbody></table></div>';
+    document.getElementById('personTable').innerHTML = html;
+  } catch (_) {}
+}
+
+function openAddPerson() {
+  ['pName','pPhone','pPassword','pSequence'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('editPersonId').value = '';
+  document.getElementById('personModalTitle').textContent = '➕ Add Delivery Person';
+  document.getElementById('personModalResult').style.display = 'none';
+  document.getElementById('personModal').classList.add('open');
+}
+
+async function savePerson() {
+  const name = document.getElementById('pName').value.trim();
+  const phone= document.getElementById('pPhone').value.trim();
+  const pwd  = document.getElementById('pPassword').value.trim();
+  if (!name || !phone || !pwd) { showToast('Name, phone and password are required.', 'error'); return; }
+  const btn = document.getElementById('personSaveBtn');
+  setLoading(btn, true);
+  try {
+    const res = await apiPost('addDeliveryPerson', { name, phone, password: pwd, sequence: document.getElementById('pSequence').value.trim() }, adminToken);
+    if (res.success) {
+      const r = document.getElementById('personModalResult');
+      r.innerHTML = `✅ Added! <strong>Partner ID: ${res.personId}</strong> · Password: ${res.password}<br>Share these credentials with the delivery person.`;
+      r.style.display = 'flex';
+      loadPersons();
+      setLoading(btn, false);
+    } else { showToast(res.error || 'Failed.', 'error'); setLoading(btn, false); }
+  } catch (_) { showToast('Network error.', 'error'); setLoading(btn, false); }
+}
+
+async function resetPersonPwd(personId, name) {
+  const newPwd = prompt(`New password for ${name}:`);
+  if (!newPwd) return;
+  try {
+    const res = await apiPost('updateDeliveryPerson', { personId, password: newPwd }, adminToken);
+    showToast(res.success ? `Password updated for ${name}.` : (res.error || 'Failed.'), res.success ? 'success' : 'error');
+  } catch (_) { showToast('Network error.', 'error'); }
+}
+
+async function togglePerson(personId, isActive) {
+  const active = isActive === 'true' ? false : true;
+  try {
+    const res = await apiPost('updateDeliveryPerson', { personId, active }, adminToken);
+    if (res.success) loadPersons();
+  } catch (_) {}
+}
+
+// ===== PRICES =====
+async function loadPrices() {
+  try {
+    const res = await apiGet({ action: 'getPrices', token: adminToken });
+    if (!res.success) return;
+    allPrices = res.prices;
+    // Build brandQualityMap for dropdowns
+    allPrices.forEach(p => {
+      if (!brandQualityMap[p.brand]) brandQualityMap[p.brand] = [];
+      if (!brandQualityMap[p.brand].includes(p.quality)) brandQualityMap[p.brand].push(p.quality);
+    });
+    if (!allPrices.length) { document.getElementById('priceTable').innerHTML = '<div class="mp-empty"><span class="empty-icon">💰</span><p>No prices configured.</p></div>'; return; }
+    let html = `<div class="mp-table-wrap"><table class="mp-table">
+      <thead><tr><th>Brand</th><th>Quality / Variant</th><th>Price per Litre</th><th>Actions</th></tr></thead><tbody>`;
+    allPrices.forEach(p => {
+      html += `<tr>
+        <td><strong>${p.brand}</strong></td>
+        <td>${p.quality}</td>
+        <td style="font-size:17px;font-weight:700;color:var(--primary);">₹${p.pricePerLitre}</td>
+        <td><button class="mp-btn mp-btn-outline mp-btn-sm" onclick="editPrice('${p.brand}','${p.quality}',${p.pricePerLitre})">✏️ Edit</button></td>
+      </tr>`;
+    });
+    html += '</tbody></table></div>';
+    document.getElementById('priceTable').innerHTML = html;
+  } catch (_) {}
+}
+
+function openAddPrice() {
+  document.getElementById('priceBrand').value = '';
+  document.getElementById('priceQuality').value = '';
+  document.getElementById('priceAmount').value = '';
+  document.getElementById('priceModal').classList.add('open');
+}
+
+function editPrice(brand, quality, amount) {
+  document.getElementById('priceBrand').value   = brand;
+  document.getElementById('priceQuality').value = quality;
+  document.getElementById('priceAmount').value  = amount;
+  document.getElementById('priceModal').classList.add('open');
+}
+
+async function savePrice() {
+  const brand  = document.getElementById('priceBrand').value.trim();
+  const quality= document.getElementById('priceQuality').value.trim();
+  const price  = parseFloat(document.getElementById('priceAmount').value);
+  if (!brand || !quality || isNaN(price)) { showToast('All price fields are required.', 'error'); return; }
+  try {
+    const res = await apiPost('updatePrice', { brand, quality, pricePerLitre: price }, adminToken);
+    if (res.success) { document.getElementById('priceModal').classList.remove('open'); loadPrices(); showToast('Price saved.', 'success'); }
+    else showToast(res.error || 'Failed.', 'error');
+  } catch (_) { showToast('Network error.', 'error'); }
+}
+
+// ===== BILLS =====
+function initBillMonthSelects() {
+  const mSel = document.getElementById('billMonth');
+  const ySel = document.getElementById('billYear');
+  MONTHS.slice(1).forEach((m, i) => {
+    const opt = document.createElement('option');
+    opt.value = i + 1; opt.textContent = m;
+    if (i + 1 === billViewMonth) opt.selected = true;
+    mSel.appendChild(opt);
+  });
+  for (let y = now.getFullYear(); y >= now.getFullYear() - 2; y--) {
+    const opt = document.createElement('option');
+    opt.value = y; opt.textContent = y;
+    if (y === billViewYear) opt.selected = true;
+    ySel.appendChild(opt);
+  }
+}
+
+async function loadBills() {
+  const m = parseInt(document.getElementById('billMonth').value) || billViewMonth;
+  const y = parseInt(document.getElementById('billYear').value)  || billViewYear;
+  document.getElementById('billTable').innerHTML = '<div class="mp-empty"><span class="empty-icon">⏳</span><p>Loading…</p></div>';
+  try {
+    const res = await apiGet({ action: 'getBills', token: adminToken, month: m, year: y });
+    if (!res.success) return;
+    if (!res.bills.length) {
+      document.getElementById('billTable').innerHTML = `<div class="mp-empty"><span class="empty-icon">📄</span><p>No bills for ${MONTHS[m]} ${y}. Click "Generate Bills" first.</p></div>`;
+      return;
+    }
+    const total = res.bills.reduce((s, b) => s + (parseFloat(b.TotalAmount) || 0), 0);
+    let html = `<div class="mp-alert mp-alert-info" style="margin-bottom:12px;">
+      ${res.bills.length} bills · Total: <strong>₹${total.toLocaleString('en-IN')}</strong>
+    </div>`;
+    html += `<div class="mp-table-wrap"><table class="mp-table">
+      <thead><tr><th><input type="checkbox" id="chkAll" onchange="toggleAllBills(this)"></th><th>Customer</th><th>Days</th><th>Milk (L)</th><th>Amount</th><th>Status</th><th>Actions</th></tr></thead><tbody>`;
+    res.bills.forEach(b => {
+      const sent = b.Status === 'Sent';
+      html += `<tr class="${sent ? 'bill-row-sent' : ''}">
+        <td><input type="checkbox" class="bill-chk" value="${b.CustomerID}" ${sent ? 'checked disabled' : ''}></td>
+        <td><strong>${b.CustomerName}</strong><br><span style="font-size:11px;color:var(--text-muted);">${b.Phone}</span></td>
+        <td>${b.TotalDays}</td>
+        <td>${parseFloat(b.MilkLtrs).toFixed(1)}</td>
+        <td style="font-size:16px;font-weight:700;color:var(--primary);">₹${b.TotalAmount}</td>
+        <td><span class="mp-badge mp-badge-${sent ? 'success' : 'warning'}">${b.Status}</span></td>
+        <td style="white-space:nowrap;">
+          <button class="mp-btn mp-btn-accent mp-btn-sm" onclick="sendOneBill('${b.CustomerID}',${m},${y})">📤 Send</button>
+          ${b.Status !== 'Paid' ? `<button class="mp-btn mp-btn-success mp-btn-sm" onclick="openPaymentModal('${b.BillID}','${b.CustomerID}','${b.CustomerName.replace(/'/g,"\\'")}',${m},${y},${b.TotalAmount})">💰 Record Payment</button>` : '<span class="mp-badge mp-badge-success">✅ Paid</span>'}
+        </td>
+      </tr>`;
+    });
+    html += '</tbody></table></div>';
+    document.getElementById('billTable').innerHTML = html;
+  } catch (_) { document.getElementById('billTable').innerHTML = '<div class="mp-alert mp-alert-danger">Failed to load bills.</div>'; }
+}
+
+function toggleAllBills(chk) {
+  document.querySelectorAll('.bill-chk:not(:disabled)').forEach(c => c.checked = chk.checked);
+}
+
+async function generateBillsNow() {
+  const m = parseInt(document.getElementById('billMonth').value) || billViewMonth;
+  const y = parseInt(document.getElementById('billYear').value)  || billViewYear;
+  if (!confirm(`Generate bills for ${MONTHS[m]} ${y}? Existing bills for this month will be replaced.`)) return;
+  showToast('Generating bills…', 'info');
+  try {
+    const res = await apiPost('generateBills', { month: m, year: y }, adminToken);
+    if (res.success) { loadBills(); showToast(`✅ Generated ${res.count} bills for ${res.monthName} ${y}.`, 'success', 4000); }
+    else showToast(res.error || 'Failed.', 'error');
+  } catch (_) { showToast('Network error.', 'error'); }
+}
+
+async function sendAllBills() {
+  const m = parseInt(document.getElementById('billMonth').value) || billViewMonth;
+  const y = parseInt(document.getElementById('billYear').value)  || billViewYear;
+  const selected = Array.from(document.querySelectorAll('.bill-chk:checked')).map(c => c.value);
+  if (!selected.length) { showToast('Select at least one bill to send.', 'warning'); return; }
+  if (!confirm(`Send ${selected.length} bills for ${MONTHS[m]} ${y}?`)) return;
+  showToast('Sending bills…', 'info');
+  try {
+    const res = await apiPost('sendBills', { month: m, year: y, customerIds: selected }, adminToken);
+    if (res.success) { loadBills(); showToast(`✅ Sent ${res.count} bills.`, 'success', 4000); }
+    else showToast(res.error || 'Failed.', 'error');
+  } catch (_) { showToast('Network error.', 'error'); }
+}
+
+async function sendOneBill(custId, m, y) {
+  try {
+    const res = await apiPost('sendBills', { month: m, year: y, customerIds: [custId] }, adminToken);
+    showToast(res.success ? '✅ Bill sent.' : (res.error || 'Failed.'), res.success ? 'success' : 'error');
+    if (res.success) loadBills();
+  } catch (_) { showToast('Network error.', 'error'); }
+}
+
+// ===== SETTINGS =====
+const EDITABLE_CONFIGS = [
+  ['BUSINESS_NAME','Business Name'],['BUSINESS_CITY','City'],['BUSINESS_PHONE','Phone'],
+  ['BUSINESS_ADDRESS','Address'],['UPI_ID','UPI ID'],['ADMIN_EMAIL','Admin Email'],
+  ['SUPPORT_EMAIL','Support Email'],['DRY_RUN_MODE','Dry Run Mode (TRUE/FALSE)'],
+  ['DRY_RUN_EMAIL','Dry Run Email'],['WHATSAPP_PROVIDER','WhatsApp Provider (twilio/wati/none)'],
+  ['WHATSAPP_ACCOUNT_SID','Twilio Account SID'],['WHATSAPP_AUTH_TOKEN','Twilio Auth Token'],
+  ['WHATSAPP_FROM','WhatsApp From Number'],['DELIVERY_CHARGE_PER_MONTH','Delivery Charge/Month (₹)'],
+  ['GITHUB_PAGES_URL','GitHub Pages URL'],['CURRENCY_SYMBOL','Currency Symbol'],
+];
+let configValues = {};
+
+async function loadConfig() {
+  try {
+    const res = await apiGet({ action: 'getFullConfig', token: adminToken });
+    if (!res.success) return;
+    configValues = res.config || {};
+    let html = '';
+    EDITABLE_CONFIGS.forEach(([key, label]) => {
+      const val = configValues[key] || '';
+      const isSecret = key.includes('TOKEN') || key.includes('SID');
+      html += `<div class="mp-form-group">
+        <label class="mp-label"><span class="config-key">${key}</span> — ${label}</label>
+        <input class="mp-input config-val" type="${isSecret ? 'password' : 'text'}" data-key="${key}" value="${val.toString().replace(/"/g,'&quot;')}" placeholder="${isSecret ? '(unchanged if blank)' : ''}">
+      </div>`;
+    });
+    document.getElementById('configForm').innerHTML = html;
+  } catch (_) {}
+}
+
+async function saveConfig() {
+  const settings = {};
+  document.querySelectorAll('.config-val').forEach(inp => {
+    const key = inp.dataset.key;
+    const val = inp.value.trim();
+    const isSecret = key.includes('TOKEN') || key.includes('SID');
+    if (!isSecret || val) settings[key] = val;
+  });
+  try {
+    const res = await apiPost('updateConfig', { settings }, adminToken);
+    showToast(res.success ? '✅ Settings saved to Google Sheet.' : (res.error || 'Failed.'), res.success ? 'success' : 'error');
+  } catch (_) { showToast('Network error.', 'error'); }
+}
+
+async function changePassword() {
+  const cur = document.getElementById('curPwd').value;
+  const nw  = document.getElementById('newPwd').value;
+  if (!cur || !nw) { showToast('Enter both current and new password.', 'warning'); return; }
+  if (nw.length < 6) { showToast('New password must be at least 6 characters.', 'warning'); return; }
+  try {
+    const res = await apiPost('changeAdminPassword', { currentPassword: cur, newPassword: nw }, adminToken);
+    showToast(res.success ? '✅ Password changed.' : (res.error || 'Failed.'), res.success ? 'success' : 'error');
+    if (res.success) { document.getElementById('curPwd').value = ''; document.getElementById('newPwd').value = ''; }
+  } catch (_) { showToast('Network error.', 'error'); }
+}
+
+// ===== REGISTRATIONS =====
+async function loadRegistrations() {
+  document.getElementById('registrationTable').innerHTML = '<div class="mp-empty"><span class="empty-icon">⏳</span><p>Loading…</p></div>';
+  try {
+    const res = await apiGet({ action: 'getRegistrations', token: adminToken });
+    if (!res.success) return;
+    const regs = res.registrations;
+    if (!regs.length) { document.getElementById('registrationTable').innerHTML = '<div class="mp-empty"><span class="empty-icon">📋</span><p>No registrations yet.</p></div>'; return; }
+    const pending   = regs.filter(r => r.Status === 'Pending');
+    const processed = regs.filter(r => r.Status !== 'Pending');
+    let html = '';
+    if (pending.length) {
+      html += `<div class="mp-card-title" style="margin-bottom:12px;">🔔 Pending (${pending.length})</div>`;
+      html += `<div class="mp-table-wrap"><table class="mp-table">
+        <thead><tr><th>Date</th><th>Name</th><th>Phone</th><th>Address</th><th>Brand</th><th>Qty/Day</th><th>Message</th><th>Actions</th></tr></thead><tbody>`;
+      pending.forEach(r => {
+        html += `<tr>
+          <td style="font-size:12px;">${String(r.RegisteredAt||'').substring(0,10)}</td>
+          <td><strong>${r.Name}</strong>${r.Email ? `<br><span style="font-size:11px;color:var(--text-muted);">${r.Email}</span>` : ''}</td>
+          <td>${r.Phone}</td>
+          <td style="font-size:12px;">${r.Address||'—'}</td>
+          <td>${r.PreferredBrand||'Amul'}</td>
+          <td>${r.PreferredQty||1}L</td>
+          <td style="font-size:12px;color:var(--text-muted);">${r.Message||'—'}</td>
+          <td style="white-space:nowrap;">
+            <button class="mp-btn mp-btn-success mp-btn-sm" onclick="approveReg('${r.RegID}','${r.Name.replace(/'/g,"\\'")}')">✅ Approve</button>
+            <button class="mp-btn mp-btn-danger mp-btn-sm"  onclick="openRejectModal('${r.RegID}')">❌ Reject</button>
+          </td>
+        </tr>`;
+      });
+      html += '</tbody></table></div>';
+    }
+    if (processed.length) {
+      html += `<div class="mp-card-title" style="margin:20px 0 12px;">📜 Processed (${processed.length})</div>`;
+      html += `<div class="mp-table-wrap"><table class="mp-table">
+        <thead><tr><th>Date</th><th>Name</th><th>Phone</th><th>Status</th><th>Processed At</th><th>Notes</th></tr></thead><tbody>`;
+      processed.forEach(r => {
+        const badge = r.Status === 'Approved' ? 'success' : 'danger';
+        html += `<tr>
+          <td style="font-size:12px;">${String(r.RegisteredAt||'').substring(0,10)}</td>
+          <td><strong>${r.Name}</strong></td>
+          <td>${r.Phone}</td>
+          <td><span class="mp-badge mp-badge-${badge}">${r.Status}</span></td>
+          <td style="font-size:12px;">${String(r.ProcessedAt||'').substring(0,10)||'—'}</td>
+          <td style="font-size:12px;color:var(--text-muted);">${r.AdminNotes||'—'}</td>
+        </tr>`;
+      });
+      html += '</tbody></table></div>';
+    }
+    document.getElementById('registrationTable').innerHTML = html;
+  } catch (_) { document.getElementById('registrationTable').innerHTML = '<div class="mp-alert mp-alert-danger">Failed to load registrations.</div>'; }
+}
+
+async function approveReg(regId, name) {
+  if (!confirm(`Approve registration for ${name}?\nThis will create their customer account and send login PIN by email.`)) return;
+  showToast('Approving…', 'info');
+  try {
+    const res = await apiPost('approveRegistration', { regId }, adminToken);
+    if (res.success) {
+      loadRegistrations(); loadDashboard();
+      showToast(`✅ ${name} approved! Customer ID: ${res.customerId}${res.emailSent ? ' · PIN sent by email.' : ` · PIN: ${res.pin} (no email — share manually)`}`, 'success', 6000);
+    } else showToast(res.error || 'Failed.', 'error');
+  } catch (_) { showToast('Network error.', 'error'); }
+}
+
+function openRejectModal(regId) {
+  document.getElementById('rejectRegId').value = regId;
+  document.getElementById('rejectReason').value = 'Address is outside our current delivery area.';
+  document.getElementById('customReasonWrap').style.display = 'none';
+  document.getElementById('rejectModal').classList.add('open');
+}
+
+function updateRejectReason() {
+  const sel = document.getElementById('rejectReason').value;
+  document.getElementById('customReasonWrap').style.display = sel === 'custom' ? 'block' : 'none';
+}
+
+async function confirmReject() {
+  const regId = document.getElementById('rejectRegId').value;
+  const sel = document.getElementById('rejectReason').value;
+  const reason = sel === 'custom' ? document.getElementById('customReason').value.trim() : sel;
+  if (!reason) { showToast('Please enter a reason.', 'warning'); return; }
+  try {
+    const res = await apiPost('rejectRegistration', { regId, reason }, adminToken);
+    if (res.success) {
+      document.getElementById('rejectModal').classList.remove('open');
+      loadRegistrations(); loadDashboard();
+      showToast('Registration rejected. Email sent to applicant.', 'info');
+    } else showToast(res.error || 'Failed.', 'error');
+  } catch (_) { showToast('Network error.', 'error'); }
+}
+
+// ===== PAYMENT RECORDING =====
+function openPaymentModal(billId, custId, custName, month, year, amount) {
+  document.getElementById('payBillId').value      = billId;
+  document.getElementById('payCustomerId').value  = custId;
+  document.getElementById('payCustomerName').textContent = custName;
+  document.getElementById('payBillPeriod').textContent   = `${MONTHS[month]} ${year} · Bill: ${billId}`;
+  document.getElementById('payAmount').value  = amount;
+  document.getElementById('payMethod').value  = 'Cash';
+  document.getElementById('payRef').value     = '';
+  document.getElementById('paymentModal').classList.add('open');
+}
+
+async function savePayment() {
+  const billId   = document.getElementById('payBillId').value;
+  const custId   = document.getElementById('payCustomerId').value;
+  const amount   = parseFloat(document.getElementById('payAmount').value);
+  const method   = document.getElementById('payMethod').value;
+  const transRef = document.getElementById('payRef').value.trim();
+  if (isNaN(amount) || amount <= 0) { showToast('Please enter a valid amount.', 'warning'); return; }
+  const mSel = document.getElementById('billMonth');
+  const ySel = document.getElementById('billYear');
+  const btn = document.getElementById('paySaveBtn');
+  setLoading(btn, true);
+  try {
+    const res = await apiPost('recordPayment', { billId, customerId: custId, amount, method, transactionRef: transRef,
+      month: parseInt(mSel.value)||billViewMonth, year: parseInt(ySel.value)||billViewYear }, adminToken);
+    if (res.success) {
+      document.getElementById('paymentModal').classList.remove('open');
+      loadBills();
+      showToast(`✅ Payment recorded!${res.emailSent ? ' Receipt emailed.' : ''}${res.waSent ? ' Receipt via WhatsApp.' : ''}`, 'success', 5000);
+    } else { showToast(res.error || 'Failed.', 'error'); setLoading(btn, false); }
+  } catch (_) { showToast('Network error.', 'error'); setLoading(btn, false); }
+}
+
+// ===== EOD ORDER SUMMARY =====
+async function loadEODSummary() {
+  document.getElementById('eodBody').innerHTML = '<div class="mp-empty" style="padding:8px 0;"><span class="empty-icon">⏳</span><p>Loading…</p></div>';
+  try {
+    const res = await apiGet({ action: 'getEODSummary', token: adminToken });
+    if (!res.success) { document.getElementById('eodBody').innerHTML = `<div class="mp-alert mp-alert-danger">${res.error}</div>`; return; }
+    const { summary, forDate, grandMilkQty, grandCurdQty, grandTotalQty, grandCost, customOrderCount, cutoffPassed } = res;
+    const d = new Date(forDate + 'T00:00:00');
+    const dateStr = d.toLocaleDateString('en-IN', { weekday:'long', day:'numeric', month:'long' });
+
+    document.getElementById('eodStatus').textContent =
+      `For ${dateStr} · ${customOrderCount} customer${customOrderCount !== 1 ? 's' : ''} modified their order · ` +
+      (cutoffPassed ? '🔒 Cutoff passed — order locked' : '✏️ Cutoff still open');
+
+    if (!summary.length) {
+      document.getElementById('eodBody').innerHTML = '<div class="mp-alert mp-alert-info">No active customers found.</div>';
+      return;
+    }
+
+    let html = `<div class="mp-table-wrap"><table class="mp-table">
+      <thead><tr><th>Brand</th><th>Quality</th><th>Milk (L)</th><th>Curd (L)</th><th>Total Qty</th><th>Wholesale ₹/L</th><th>Est. Cost</th><th>Customers</th></tr></thead><tbody>`;
+    summary.forEach(r => {
+      const totalQty = r.milkQty + r.curdQty;
+      html += `<tr>
+        <td><strong>${r.brand}</strong></td>
+        <td>${r.quality}</td>
+        <td>${r.milkQty > 0 ? r.milkQty + 'L' : '—'}</td>
+        <td>${r.curdQty > 0 ? r.curdQty + 'L' : '—'}</td>
+        <td style="font-weight:700;color:var(--primary);">${totalQty.toFixed(1)}L</td>
+        <td>${r.wholesalePrice > 0 ? '₹' + r.wholesalePrice : '<span style="color:var(--text-muted);font-size:12px;">Not set</span>'}</td>
+        <td>${r.totalCost > 0 ? '₹' + r.totalCost : '—'}</td>
+        <td style="color:var(--text-muted);font-size:13px;">${r.customerCount}</td>
+      </tr>`;
+    });
+    html += `</tbody>
+      <tfoot>
+        <tr style="background:var(--primary);color:#fff;">
+          <td colspan="2" style="font-weight:700;padding:10px 12px;">TOTAL</td>
+          <td style="font-weight:700;">${grandMilkQty}L</td>
+          <td style="font-weight:700;">${grandCurdQty > 0 ? grandCurdQty + 'L' : '—'}</td>
+          <td style="font-weight:700;font-size:16px;">${grandTotalQty}L</td>
+          <td>—</td>
+          <td style="font-weight:700;">${grandCost > 0 ? '₹' + grandCost.toLocaleString('en-IN') : '—'}</td>
+          <td>—</td>
+        </tr>
+      </tfoot>
+    </table></div>`;
+
+    if (grandCost === 0) {
+      html += `<div class="mp-alert mp-alert-warning" style="margin-top:10px;font-size:13px;">
+        ⚠️ Wholesale prices not set. Go to <strong>Prices → Wholesale Prices</strong> tab to enter your purchase cost per litre.
+      </div>`;
+    }
+    document.getElementById('eodBody').innerHTML = html;
+  } catch (_) { document.getElementById('eodBody').innerHTML = '<div class="mp-alert mp-alert-danger">Failed to load.</div>'; }
+}
+
+async function sendEODReport() {
+  const btn = document.getElementById('eodSendBtn');
+  setLoading(btn, true, 'Sending…');
+  try {
+    const res = await apiPost('sendEODReport', {}, adminToken);
+    if (res.success) {
+      showToast(`✅ Order sent to wholesaler! ${res.grandTotalQty}L total${res.grandCost > 0 ? ' · ₹' + res.grandCost.toLocaleString('en-IN') : ''}`, 'success', 5000);
+    } else {
+      showToast(res.error || 'Failed to send.', 'error');
+    }
+  } catch (_) { showToast('Network error.', 'error'); }
+  setLoading(btn, false);
+}
+
+// Close modals on overlay click
+['custModal','personModal','priceModal','paymentModal','rejectModal'].forEach(id => {
+  document.getElementById(id).addEventListener('click', e => {
+    if (e.target === document.getElementById(id)) document.getElementById(id).classList.remove('open');
+  });
+});
+</script>
+</body>
+</html>

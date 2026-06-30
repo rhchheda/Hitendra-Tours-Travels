@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Manish Milk Parlour — Hubballi</title>
+<link rel="stylesheet" href="milk-style.css">
+<style>
+  .feature-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin: 24px 0; }
+  .feature-card { background: #fff; border-radius: 12px; padding: 20px; text-align: center; box-shadow: var(--shadow); }
+  .feature-card .icon { font-size: 32px; margin-bottom: 10px; display: block; }
+  .feature-card h3 { font-size: 15px; font-weight: 700; color: var(--primary); margin-bottom: 6px; }
+  .feature-card p { font-size: 13px; color: var(--text-muted); }
+  .contact-strip { background: var(--primary); color: #fff; padding: 20px; border-radius: 12px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+  .contact-strip a { color: #fff; font-weight: 700; text-decoration: none; }
+  .login-panel { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; }
+  .login-option { background: #fff; border-radius: 12px; box-shadow: var(--shadow); padding: 24px; text-align: center; }
+  .login-option .icon { font-size: 40px; margin-bottom: 10px; display: block; }
+  .login-option h3 { font-size: 16px; font-weight: 700; color: var(--text); margin-bottom: 8px; }
+  .login-option p { font-size: 13px; color: var(--text-muted); margin-bottom: 16px; }
+</style>
+</head>
+<body>
+
+<div class="mp-topbar">
+  <a href="index.html" class="logo"><span>🥛</span> Manish Milk Parlour</a>
+  <nav>
+    <a href="login.html">My Account</a>
+  </nav>
+</div>
+
+<!-- Hero -->
+<div class="mp-hero">
+  <div style="font-size:56px;margin-bottom:12px;">🥛</div>
+  <h1>Manish Milk Parlour<br>Hubballi</h1>
+  <p>Fresh milk, delivered at your doorstep — every morning, every day.</p>
+  <div class="hero-btns">
+    <a href="login.html"    class="mp-btn mp-btn-accent mp-btn-lg"  style="width:auto;">My Account Login</a>
+    <a href="register.html" class="mp-btn mp-btn-outline mp-btn-lg" style="width:auto;color:#fff;border-color:rgba(255,255,255,0.6);">New Customer? Register</a>
+  </div>
+</div>
+
+<!-- Dry run banner -->
+<div id="dryRunBanner" class="mp-dry-run-banner" style="display:none;">
+  🧪 System is currently in <strong>Dry Run Mode</strong> — test mode active
+</div>
+
+<div class="mp-container">
+
+  <!-- Popular Brands -->
+  <div class="mp-card">
+    <div class="mp-card-title">🏷️ Brands We Serve</div>
+    <div class="mp-brands">
+      <div class="mp-brand-chip"><span class="brand-icon">🐄</span>Amul<br><small style="font-weight:400;color:var(--text-muted);font-size:11px;">Gold · Taza · Slim&amp;Trim</small></div>
+      <div class="mp-brand-chip"><span class="brand-icon">🌾</span>Nandini<br><small style="font-weight:400;color:var(--text-muted);font-size:11px;">Toned · Homogenised</small></div>
+      <div class="mp-brand-chip"><span class="brand-icon">🏔️</span>Kolhapur<br><small style="font-weight:400;color:var(--text-muted);font-size:11px;">Regular</small></div>
+      <div class="mp-brand-chip"><span class="brand-icon">🌿</span>Mother Dairy<br><small style="font-weight:400;color:var(--text-muted);font-size:11px;">Full Cream · Toned</small></div>
+      <div class="mp-brand-chip"><span class="brand-icon">⭐</span>Aditya<br><small style="font-weight:400;color:var(--text-muted);font-size:11px;">Regular</small></div>
+    </div>
+  </div>
+
+  <!-- Features -->
+  <div class="mp-card">
+    <div class="mp-card-title">✨ Why Choose Us</div>
+    <div class="feature-grid">
+      <div class="feature-card">
+        <span class="icon">🌅</span>
+        <h3>Morning Delivery</h3>
+        <p>Fresh milk delivered before you wake up, every single day.</p>
+      </div>
+      <div class="feature-card">
+        <span class="icon">📱</span>
+        <h3>Track Online</h3>
+        <p>Login to view your delivery calendar and monthly bill anytime.</p>
+      </div>
+      <div class="feature-card">
+        <span class="icon">🔀</span>
+        <h3>Multiple Brands</h3>
+        <p>Choose from Amul, Nandini, Kolhapur, Mother Dairy, and more.</p>
+      </div>
+      <div class="feature-card">
+        <span class="icon">📄</span>
+        <h3>Monthly Bills</h3>
+        <p>Transparent billing at month end, sent to your email and WhatsApp.</p>
+      </div>
+      <div class="feature-card">
+        <span class="icon">🕖</span>
+        <h3>Change by 7 PM</h3>
+        <p>Need more or less milk tomorrow? Update your order before 7 PM daily.</p>
+      </div>
+      <div class="feature-card">
+        <span class="icon">✅</span>
+        <h3>Delivery Proof</h3>
+        <p>Every delivery is time-stamped and logged. No disputes.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Customer access only -->
+  <div class="mp-card">
+    <div class="mp-card-title">🔐 Customer Access</div>
+    <div class="login-panel">
+      <div class="login-option">
+        <span class="icon">👨‍👩‍👧</span>
+        <h3>Existing Customer</h3>
+        <p>View your daily deliveries, milk calendar, tomorrow's order and monthly bills.</p>
+        <a href="login.html" class="mp-btn mp-btn-primary" style="width:100%;justify-content:center;">Login with PIN</a>
+      </div>
+      <div class="login-option">
+        <span class="icon">📋</span>
+        <h3>New Customer</h3>
+        <p>Want fresh milk delivered daily? Register — we'll confirm your area within 24 hours.</p>
+        <a href="register.html" class="mp-btn mp-btn-success" style="width:100%;justify-content:center;">Register Now</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Contact -->
+  <div class="contact-strip">
+    <div>
+      <div style="font-size:13px;opacity:0.8;margin-bottom:4px;">📍 Hubballi, Karnataka</div>
+      <div style="font-size:17px;font-weight:700;" id="contactBizName">Manish Milk Parlour</div>
+    </div>
+    <div style="display:flex;gap:12px;flex-wrap:wrap;">
+      <a href="tel:" id="contactPhone" class="mp-btn mp-btn-accent mp-btn-sm">📞 Call Us</a>
+      <a href="https://wa.me/919480324895" target="_blank" class="mp-btn mp-btn-sm" style="background:#25D366;color:#fff;border:none;">💬 WhatsApp</a>
+    </div>
+  </div>
+
+</div>
+
+<div class="mp-footer">
+  &copy; <span id="yr"></span> Manish Milk Parlour, Hubballi. All rights reserved.
+</div>
+
+<script src="milk-app.js"></script>
+<script>
+  document.getElementById('yr').textContent = new Date().getFullYear();
+
+  apiGet({ action: 'getConfig' }).then(cfg => {
+    if (!cfg.success) return;
+    if (cfg.dryRunMode) document.getElementById('dryRunBanner').style.display = 'block';
+    if (cfg.businessName) {
+      document.getElementById('contactBizName').textContent = cfg.businessName;
+      document.title = cfg.businessName + ' — ' + (cfg.businessCity || 'Hubballi');
+    }
+    if (cfg.businessPhone) {
+      const ph = cfg.businessPhone;
+      const el = document.getElementById('contactPhone');
+      el.href = 'tel:' + ph;
+      el.textContent = '📞 ' + ph;
+    }
+  }).catch(() => {});
+</script>
+</body>
+</html>

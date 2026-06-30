@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Register for Delivery — Manish Milk Parlour</title>
+<link rel="stylesheet" href="milk-style.css">
+<style>
+  .reg-hero {
+    background: linear-gradient(135deg, var(--primary) 0%, #1d8aa8 100%);
+    color: #fff; padding: 28px 24px 24px; text-align: center; margin-bottom: 24px;
+  }
+  .reg-hero h1 { margin: 0 0 6px; font-size: 22px; }
+  .reg-hero p  { margin: 0; font-size: 14px; opacity: 0.9; }
+  .form-section-title {
+    font-size: 13px; font-weight: 700; color: var(--primary);
+    text-transform: uppercase; letter-spacing: 0.5px;
+    padding: 0 0 8px; border-bottom: 2px solid var(--primary-light);
+    margin: 20px 0 14px;
+  }
+  .brand-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .brand-chip {
+    padding: 6px 14px; border-radius: 20px; border: 1.5px solid var(--border);
+    background: #fff; font-size: 13px; cursor: pointer; transition: all 0.2s;
+    color: var(--text-muted);
+  }
+  .brand-chip.selected { background: var(--primary); color: #fff; border-color: var(--primary); }
+  .success-screen { text-align: center; padding: 40px 20px; display: none; }
+  .success-screen .big-icon { font-size: 64px; margin-bottom: 16px; }
+  .success-screen h2 { color: var(--success); margin: 0 0 12px; }
+  .success-screen p  { color: var(--text-muted); font-size: 14px; line-height: 1.6; }
+</style>
+</head>
+<body>
+
+<div class="mp-topbar">
+  <a href="index.html" class="logo"><span>🥛</span> Manish Milk Parlour</a>
+</div>
+
+<div class="reg-hero">
+  <div style="font-size:40px;margin-bottom:10px;">🥛</div>
+  <h1>Start Fresh Milk Delivery</h1>
+  <p>Fill in your details below. We'll confirm your area and set up delivery within 24 hours.</p>
+</div>
+
+<!-- Success Screen -->
+<div class="mp-container-sm" id="successScreen" class="success-screen" style="display:none;">
+  <div class="mp-card" style="text-align:center;padding:40px 24px;">
+    <div style="font-size:64px;margin-bottom:16px;">✅</div>
+    <h2 style="color:var(--success);margin:0 0 12px;">Request Submitted!</h2>
+    <p style="color:var(--text-muted);font-size:14px;line-height:1.7;">
+      Thank you! We've received your delivery request.<br>
+      Our team will review your address and contact you within <strong>24 hours</strong>.<br><br>
+      If you provided an email, a confirmation has been sent to your inbox.
+    </p>
+    <div style="margin-top:24px;display:flex;flex-direction:column;gap:10px;">
+      <a href="index.html" class="mp-btn mp-btn-primary mp-btn-lg">← Back to Home</a>
+      <a href="login.html" class="mp-btn mp-btn-outline">Already have an account? Login</a>
+    </div>
+  </div>
+</div>
+
+<!-- Registration Form -->
+<div class="mp-container-sm" id="formSection">
+  <div class="mp-card">
+
+    <div id="formError" class="mp-alert mp-alert-danger" style="display:none;"></div>
+
+    <!-- Personal Details -->
+    <div class="form-section-title">👤 Your Details</div>
+
+    <div class="mp-form-group">
+      <label class="mp-label">Full Name <span style="color:var(--danger);">*</span></label>
+      <input class="mp-input" type="text" id="regName" placeholder="e.g. Suresh Kumar" autocomplete="name">
+    </div>
+
+    <div class="mp-form-group">
+      <label class="mp-label">Mobile Number <span style="color:var(--danger);">*</span></label>
+      <input class="mp-input" type="tel" id="regPhone" placeholder="10-digit mobile number" maxlength="10" inputmode="numeric" autocomplete="tel">
+    </div>
+
+    <div class="mp-form-group">
+      <label class="mp-label">Email Address <span style="font-weight:400;color:var(--text-muted);">optional — for confirmation</span></label>
+      <input class="mp-input" type="email" id="regEmail" placeholder="your@email.com" autocomplete="email">
+    </div>
+
+    <!-- Delivery Address -->
+    <div class="form-section-title">📍 Delivery Address</div>
+
+    <div class="mp-form-group">
+      <label class="mp-label">Full Delivery Address <span style="color:var(--danger);">*</span></label>
+      <textarea class="mp-input" id="regAddress" rows="3" placeholder="House No., Street, Area, Hubballi…" style="resize:vertical;"></textarea>
+    </div>
+
+    <!-- Delivery Preferences -->
+    <div class="form-section-title">🥛 Delivery Preferences</div>
+
+    <div class="mp-form-group">
+      <label class="mp-label">Preferred Brand</label>
+      <div class="brand-chips" id="brandChips">
+        <button type="button" class="brand-chip selected" data-brand="Amul">🏆 Amul</button>
+        <button type="button" class="brand-chip" data-brand="Nandini">🌿 Nandini</button>
+        <button type="button" class="brand-chip" data-brand="Kolhapur">🐄 Kolhapur</button>
+        <button type="button" class="brand-chip" data-brand="Mother Dairy">⭐ Mother Dairy</button>
+        <button type="button" class="brand-chip" data-brand="Aditya">🥛 Aditya</button>
+      </div>
+      <input type="hidden" id="regBrand" value="Amul">
+    </div>
+
+    <div class="mp-form-group">
+      <label class="mp-label">Approximate Quantity Per Day</label>
+      <div class="mp-stepper">
+        <button type="button" onclick="adjustQty(-0.5)">−</button>
+        <input type="number" id="regQty" value="1" min="0.5" max="10" step="0.5">
+        <button type="button" onclick="adjustQty(0.5)">+</button>
+      </div>
+      <small style="color:var(--text-muted);font-size:12px;">litres per day</small>
+    </div>
+
+    <div class="mp-form-group">
+      <label class="mp-label">Preferred Delivery Time</label>
+      <select class="mp-select" id="regShift">
+        <option value="Morning">🌅 Morning (before 8 AM)</option>
+        <option value="Evening">🌆 Evening (5–7 PM)</option>
+        <option value="Morning+Evening">☀️🌙 Both Morning & Evening</option>
+      </select>
+    </div>
+
+    <!-- Optional Message -->
+    <div class="mp-form-group">
+      <label class="mp-label">Message / Special Requests <span style="font-weight:400;color:var(--text-muted);">optional</span></label>
+      <textarea class="mp-input" id="regMessage" rows="2" placeholder="Any additional info for us…" style="resize:vertical;"></textarea>
+    </div>
+
+    <div class="mp-alert mp-alert-info" style="margin-bottom:16px;">
+      ℹ️ By submitting, you agree to be contacted via phone/WhatsApp to confirm delivery details.
+    </div>
+
+    <button class="mp-btn mp-btn-accent mp-btn-lg" id="submitBtn" onclick="submitRegistration()" style="width:100%;">
+      🚀 Submit Delivery Request
+    </button>
+
+    <div style="text-align:center;margin-top:16px;">
+      <a href="login.html" style="font-size:13px;color:var(--primary);">Already have an account? Login here</a>
+    </div>
+
+  </div>
+</div>
+
+<div class="mp-footer">Manish Milk Parlour, Hubballi · <a href="index.html" style="color:var(--primary);">Home</a></div>
+
+<script src="milk-app.js"></script>
+<script>
+// Brand chip selection
+document.getElementById('brandChips').addEventListener('click', e => {
+  const chip = e.target.closest('.brand-chip');
+  if (!chip) return;
+  document.querySelectorAll('.brand-chip').forEach(c => c.classList.remove('selected'));
+  chip.classList.add('selected');
+  document.getElementById('regBrand').value = chip.dataset.brand;
+});
+
+function adjustQty(delta) {
+  const inp = document.getElementById('regQty');
+  let val = parseFloat(inp.value || 1) + delta;
+  val = Math.max(0.5, Math.min(10, Math.round(val / 0.5) * 0.5));
+  inp.value = val;
+}
+
+async function submitRegistration() {
+  const name    = document.getElementById('regName').value.trim();
+  const phone   = document.getElementById('regPhone').value.trim();
+  const email   = document.getElementById('regEmail').value.trim();
+  const address = document.getElementById('regAddress').value.trim();
+  const brand   = document.getElementById('regBrand').value;
+  const qty     = parseFloat(document.getElementById('regQty').value) || 1;
+  const shift   = document.getElementById('regShift').value;
+  const message = document.getElementById('regMessage').value.trim();
+  const errEl   = document.getElementById('formError');
+  errEl.style.display = 'none';
+
+  if (!name)              { showErr('Please enter your full name.'); return; }
+  if (!/^\d{10}$/.test(phone)) { showErr('Please enter a valid 10-digit mobile number.'); return; }
+  if (!address)           { showErr('Please enter your delivery address.'); return; }
+
+  const btn = document.getElementById('submitBtn');
+  setLoading(btn, true, 'Submitting…');
+
+  try {
+    const res = await apiPost('submitRegistration', { name, phone, email, address, preferredBrand: brand, preferredQty: qty, shift, message });
+    if (res.success) {
+      document.getElementById('formSection').style.display  = 'none';
+      document.getElementById('successScreen').style.display = 'block';
+    } else {
+      showErr(res.error || 'Submission failed. Please try again.');
+      setLoading(btn, false);
+    }
+  } catch (_) {
+    showErr('Network error. Please check your connection and try again.');
+    setLoading(btn, false);
+  }
+
+  function showErr(msg) { errEl.textContent = msg; errEl.style.display = 'flex'; }
+}
+</script>
+</body>
+</html>
